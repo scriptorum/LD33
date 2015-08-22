@@ -3,7 +3,6 @@ package game;
 import flaxen.Flaxen;
 import flaxen.FlaxenOptions;
 import game.handler.PlayHandler;
-import flaxen.system.MovementSystem;
 
 class Main extends Flaxen
 {
@@ -15,6 +14,5 @@ class Main extends Flaxen
 	override public function ready()
 	{
 		setHandler(new PlayHandler(this));
-		addSystem(new MovementSystem(this));
 	}
 }

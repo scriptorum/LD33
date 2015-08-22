@@ -1,5 +1,6 @@
 package game.handler; 
 
+import ash.core.Entity;
 import com.haxepunk.utils.Key;
 import flaxen.component.Image;
 import flaxen.component.Offset;
@@ -13,6 +14,8 @@ import flaxen.FlaxenHandler;
 import flaxen.Log;
 import flaxen.util.LogUtil;
 import flaxen.service.InputService;
+import flaxen.system.MovementSystem;
+import game.system.CitySystem;
 
 class PlayHandler extends FlaxenHandler
 {
@@ -21,6 +24,9 @@ class PlayHandler extends FlaxenHandler
 
 	override public function start()
 	{
+		f.addSystem(new MovementSystem(f));
+		f.addSystem(new CitySystem(f));
+
 		f.newEntity("sky")
 			.add(new Image("art/sky.png"))
 			.add(Size.screen())
@@ -81,17 +87,27 @@ class PlayHandler extends FlaxenHandler
 		InputService.clearLastKey();
 	}
 
+	private function setVelocity(e:Entity, featureSpeed:Int, monsterSpeed:Int)
+	{
+		var vel:Float = featureSpeed + featureSpeed * monsterSpeed * 0.5;
+		f.resolveComponent(e, Velocity).set(-vel, 0);
+	}
+
 	private function updateSpeed(speed:Int)
 	{
-		for(o in [{name:"clouds", vel:5}, {name:"mountains", vel:20}])//, ["items", -50]])
-		{
-			var vel:Float = o.vel + o.vel * speed * 0.5;
-			f.resolveEntity(o.name).add(new Velocity(-vel, 0));
-		}
+		setVelocity(f.resolveEntity("clouds"), 5, speed);
+		setVelocity(f.resolveEntity("mountains"), 20, speed);
+		setVelocity(f.resolveEntity("featureProxy"), 50, speed);
 
 		var pos = f.resolveComponent("monster", Position);
 		pos.x = 5 + 6 * speed;
 
 		monsterSpeed = speed;
+	}
+
+	override public function stop()
+	{
+		f.removeSystemByClass(MovementSystem);
+		f.removeSystemByClass(CitySystem);
 	}
 }
