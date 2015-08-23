@@ -15,18 +15,31 @@ import flaxen.Log;
 import flaxen.util.LogUtil;
 import flaxen.service.InputService;
 import flaxen.system.MovementSystem;
+import game.system.CollisionSystem;
+import game.component.Monster;
 import game.system.CitySystem;
 
 class PlayHandler extends FlaxenHandler
 {
 	public static var MAX_SPEED:Int = 10;
-	public var monsterSpeed:Int = 0;
+	public var monster:Monster = new Monster();
 
 	override public function start()
 	{
-		f.addSystem(new MovementSystem(f));
-		f.addSystem(new CitySystem(f));
+		addEntities();	
+		addSystems();
+		updateSpeed(0);
+	}
 
+	public function addSystems()
+	{
+		f.addSystem(new MovementSystem(f));
+		f.addSystem(new CollisionSystem(f));
+		f.addSystem(new CitySystem(f));
+	}
+
+	public function addEntities()
+	{
 		f.newEntity("sky")
 			.add(new Image("art/sky.png"))
 			.add(Size.screen())
@@ -53,9 +66,8 @@ class PlayHandler extends FlaxenHandler
 		f.newEntity("monster")
 			.add(new Image("art/monster.png"))
 			.add(new Position(10, 193))
-			.add(new Layer(30));
-
-		updateSpeed(0);
+			.add(monster)
+			.add(new Layer(20));
 	}
 
 	override public function update()
@@ -81,33 +93,42 @@ class PlayHandler extends FlaxenHandler
 		if(key == Key.DIGIT_5) updateSpeed(5);
 		#end
 
-		if(key == Key.SPACE && monsterSpeed < MAX_SPEED) 
-			updateSpeed(monsterSpeed + 1);
+		if(monster.speedChanged)
+		{
+			monster.speedChanged = false;
+			updateSpeed(monster.speed);
+		}
+
+		if(key == Key.SPACE && monster.speed < MAX_SPEED) 
+			updateSpeed(monster.speed + 1);
+
 
 		InputService.clearLastKey();
 	}
 
-	private function setVelocity(e:Entity, featureSpeed:Int, monsterSpeed:Int)
+	private function setVelocity(name:String, featureSpeed:Int, monsterSpeed:Int)
 	{
+		var e = f.getEntity(name);
 		var vel:Float = featureSpeed + featureSpeed * monsterSpeed * 0.5;
-		f.resolveComponent(e, Velocity).set(-vel, 0);
+		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
 	}
 
 	private function updateSpeed(speed:Int)
 	{
-		setVelocity(f.resolveEntity("clouds"), 5, speed);
-		setVelocity(f.resolveEntity("mountains"), 20, speed);
-		setVelocity(f.resolveEntity("featureProxy"), 50, speed);
+		setVelocity("clouds", 5, speed);
+		setVelocity("mountains", 20, speed);
+		setVelocity("featureProxy", 50, speed);
 
-		var pos = f.resolveComponent("monster", Position);
+		var pos = f.getComponent("monster", Position);
 		pos.x = 5 + 6 * speed;
 
-		monsterSpeed = speed;
+		monster.speed = speed;
 	}
 
 	override public function stop()
 	{
 		f.removeSystemByClass(MovementSystem);
+		f.removeSystemByClass(CollisionSystem);
 		f.removeSystemByClass(CitySystem);
 	}
 }

@@ -1,7 +1,6 @@
 package game.system;
 
-import ash.core.Engine;
-import ash.core.Node;
+import ash.core.Entity;
 import ash.core.System;
 import flaxen.component.Image;
 import flaxen.component.Layer;
@@ -12,6 +11,8 @@ import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
 import game.common.FeatureType;
 import game.component.Feature;
+import game.component.Monster;
+import game.node.FeatureNode;
 
 class CitySystem extends FlaxenSystem
 {
@@ -35,20 +36,24 @@ class CitySystem extends FlaxenSystem
 		f.newEntity("featureProxy")
 			.add(featureVelocity);
 
-		spawnFeature(Empty, 3);
+		spawnFeature(Empty, 8);
 
-		spawnFeature(Building, 0);
-		spawnFeature(Empty);
-		spawnFeature(Building, 1);
-		spawnFeature(Pikes);
-		spawnFeature(Building, 2);
-		spawnFeature(Empty);
-		spawnFeature(Building, 3);
-		spawnFeature(Empty);
-		spawnFeature(Building, 4);
-		spawnFeature(Empty);
-		spawnFeature(Building, 5);
-		spawnFeature(Empty);
+		// Point monster toward some future feature to begin the collision-check-chain
+		var first = spawnFeature(Empty);
+		var monster:Monster = f.getComponent("monster", Monster);
+		monster.nextFeatureId = first.name;
+
+		// spawnFeature(Empty);
+		// spawnFeature(Building, 1);
+		// spawnFeature(Pikes);
+		// spawnFeature(Building, 2);
+		// spawnFeature(Empty);
+		// spawnFeature(Building, 3);
+		// spawnFeature(Empty);
+		// spawnFeature(Building, 4);
+		// spawnFeature(Empty);
+		// spawnFeature(Building, 5);
+		// spawnFeature(Empty);
 
 		spawnFeatures();
 
@@ -62,11 +67,8 @@ class CitySystem extends FlaxenSystem
 	 		// Check for feature has fallen off map
 	 		if(node.position.x < -32 * 5)
 	 		{
-	 			// Remove feature
-	 			f.removeEntity(node.entity);
-
-	 			// Queue up new features
-	 			spawnFeatures();
+	 			f.removeEntity(node.entity); // Remove feature
+	 			spawnFeatures(); // Queue up new features
 	 		}
 	 	}
 	}
@@ -111,20 +113,26 @@ class CitySystem extends FlaxenSystem
 		}
 	}
 
-	public function spawnFeature(type:FeatureType, size:Int = 1)
+	public function spawnFeature(type:FeatureType, size:Int = 1): Entity
 	{		
 		var spawnX:Float = 0;
 		if(lastFeaturePos != null)
 			spawnX = lastFeaturePos.x + lastFeature.size * 32;
 
-		lastFeature = new Feature(type, size);
-		lastFeaturePos = new Position(spawnX, 250);
-		var e = f.newEntity()
+		var feature = new Feature(type, size);
+		var pos = new Position(spawnX, 250);
+		var e = f.newEntity('feature$type#')
 			.add(new Offset(0, -1, true))
 			.add(featureVelocity)
-			.add(lastFeature)
-			.add(lastFeaturePos);
+			.add(feature)
+			.add(pos);
+		feature.id = e.name;
+		if(lastFeature != null)
+			lastFeature.nextId = feature.id;
+
 		spawnCount++;
+		lastFeature = feature;
+		lastFeaturePos = pos;
 
 		switch(type)
 		{
@@ -136,12 +144,10 @@ class CitySystem extends FlaxenSystem
 
 			case Empty:
 		}
+
+		return e;
 	}
 }
 
-private class FeatureNode extends Node<FeatureNode>
-{
-	public var feature:Feature;
-	public var position:Position;
-}
+
 
