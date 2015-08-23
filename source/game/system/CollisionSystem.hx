@@ -39,7 +39,6 @@ class CollisionSystem extends FlaxenSystem
 		if(pos >= f.getComponent(nextFeatureEnt, Position).x)
 		{
 			var feature = f.getComponent(nextFeatureEnt, Feature);
-			trace("Collision with " + feature.type + " named " + nextFeatureEnt.name);
 			switch(feature.type)
 			{
 				case Building:
@@ -47,44 +46,78 @@ class CollisionSystem extends FlaxenSystem
 				case Pikes:
 					resolvePikesCollision(monster);
 				case Empty:
-					monster.nextFeatureId = feature.nextId; // Thanks, move to the next feature
+				case Rubble:
 			}
+
+	 		// Update "next feature" pointer for monster
+	 		monster.nextFeatureId = feature.nextId;
 		}
 	 }
 
+	 // TODO Add puff of smoke
+	 public function doSmokeFx()
+	 {
+		// var emitter = new Emitter("art/particle-smoke.png");
+		// emitter.destroyEntity = true;
+		// emitter.maxParticles = Math.floor(radius * radius / 15);
+		// emitter.lifespan = 1.0;
+		// emitter.lifespanRand = 0.1;
+		// emitter.distance = radius * 1.5;
+		// emitter.rotationRand = new Rotation(360);
+		// emitter.stopAfterSeconds = 0.3;
+		// emitter.emitRadiusRand = radius / 10;
+		// emitter.alphaStart = 0.2;
+
+		// var e = flaxen.newEntity("emitter")
+		// 	.add(new Layer(10))
+		// 	.add(position.clone());
+
+		// // Delay emitter start
+		// e.add(new ActionQueue()
+		// 	.delay(0.25)
+		// 	.addComponent(e, emitter));
+	}
+
+	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
+	//      I have to remove the Display component as well. Tsk, shouldn't be that way.
+	// featureEnt.remove(Image);
+	// featureEnt.remove(Layer);
+	// featureEnt.remove(flaxen.component.Display);
 	 public function resolveBuildingCollision(monster:Monster, feature:Feature, featureEnt:Entity)
 	 {
 	 	if(feature.size <= monster.speed)
 	 	{
-	 		// Remove building
-	 		// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
-	 		//      I have to remove the Display component as well. Tsk, shouldn't be that way.
-	 		feature.type = Empty;
-	 		featureEnt.remove(Image);
-	 		featureEnt.remove(Layer);
-	 		featureEnt.remove(flaxen.component.Display);
+	 		// Replace building with rubble
+	 		feature.type = Rubble;
+			featureEnt.remove(flaxen.component.Display);
+	 		featureEnt.add(new Image('art/rubble${feature.size}.png'));
 
-	 		// TODO Leave ruin
-	 		// TODO Show puff of smoke
-	 		// TODO Collision sound
-	 		trace("Kaboom");
+	 		// Show puff of smoke
+	 		doSmokeFx();
 
-	 		// Slow monster
+	 		// Collision sound
+	 		var id = flaxen.util.MathUtil.rndInt(1,3);
+	 		f.newSound('sound/destroy$id.wav');
+
+	 		// Slow down monster
 	 		monster.speed -= feature.size;
 	 		monster.speedChanged = true;
-
-	 		// Update "next feature" pointer for monster
-	 		trace("Changing nextFeatureId:" + monster.nextFeatureId + " to feature.nextId:" + feature.nextId);
-	 		monster.nextFeatureId = feature.nextId;
 	 	}
 
 	 	else
 	 	{
 	 		trace("BONK!");
-		 	// TODO Add death sequence, play sound, show sitting monster with headache and seeing stars
+	 		f.newSound("sound/crack.wav");
+
+		 	// TODO Add death sequence, show sitting monster with headache and seeing stars
+
 		 	// TODO Update speed to null
-		 	// TODO Change connotation of speed 0 to speed 1 and up them all because it's frankly confusing, also change building sizes +1, duh
+		 	monster.speed = -1;
+		 	monster.speedChanged = true;
+
 		 	// TODO Remove input controls
+
+
 		 	// TODO Popup message and score
 	 	}
 
@@ -97,8 +130,14 @@ class CollisionSystem extends FlaxenSystem
 
 	 	// Otherwise you die! TODO
 	 	trace("You die from violent painful spikes! Why did you have to go so fast?!!!");
-	 	// TODO Add death sequence, play sound, show dead guy
+	 	f.newSound("sound/ouch.wav");
+
+	 	// TODO Add death sequence, show hurt guy
+
 	 	// TODO Update speed to null
+	 	monster.speed = -1;
+	 	monster.speedChanged = true;
+
 	 	// TODO Change connotation of speed 0 to speed 1 and up them all because it's frankly confusing, also change building sizes +1, duh
 	 	// TODO Remove input controls
 	 	// TODO Popup message and score

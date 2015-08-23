@@ -1,3 +1,3 @@
 package game.common;
 
-enum FeatureType { Empty; Pikes; Building; }
+enum FeatureType { Empty; Pikes; Building; Rubble; }

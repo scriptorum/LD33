@@ -143,6 +143,7 @@ class CitySystem extends FlaxenSystem
 			e.add(new Image('art/building$size.png')).add(featureLayer);
 
 			case Empty:
+			case Rubble:
 		}
 
 		return e;

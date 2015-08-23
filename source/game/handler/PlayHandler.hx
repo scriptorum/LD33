@@ -21,7 +21,7 @@ import game.system.CitySystem;
 
 class PlayHandler extends FlaxenHandler
 {
-	public static var MAX_SPEED:Int = 10;
+	public static var MAX_SPEED:Int = 20;
 	public var monster:Monster = new Monster();
 
 	override public function start()
@@ -99,9 +99,8 @@ class PlayHandler extends FlaxenHandler
 			updateSpeed(monster.speed);
 		}
 
-		if(key == Key.SPACE && monster.speed < MAX_SPEED) 
+		if(key == Key.SPACE && monster.speed < MAX_SPEED && monster.speed >= 0) 
 			updateSpeed(monster.speed + 1);
-
 
 		InputService.clearLastKey();
 	}
@@ -109,7 +108,8 @@ class PlayHandler extends FlaxenHandler
 	private function setVelocity(name:String, featureSpeed:Int, monsterSpeed:Int)
 	{
 		var e = f.getEntity(name);
-		var vel:Float = featureSpeed + featureSpeed * monsterSpeed * 0.5;
+		var vel:Float = monsterSpeed < 0 ? 0 :
+			featureSpeed + featureSpeed * monsterSpeed * 0.5;
 		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
 	}
 
@@ -119,8 +119,11 @@ class PlayHandler extends FlaxenHandler
 		setVelocity("mountains", 20, speed);
 		setVelocity("featureProxy", 50, speed);
 
-		var pos = f.getComponent("monster", Position);
-		pos.x = 5 + 6 * speed;
+		if(speed >= 0)
+		{
+			var pos = f.getComponent("monster", Position);
+			pos.x = 5 + 6 * speed;
+		}
 
 		monster.speed = speed;
 	}
