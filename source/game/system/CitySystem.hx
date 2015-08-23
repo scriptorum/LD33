@@ -15,7 +15,16 @@ import game.component.Feature;
 
 class CitySystem extends FlaxenSystem
 {
+	private static var chart = [ // chances to spawn different building sizes at varying difficulties
+		[ .15, .40, .20, .15, .10, .00],  // 0% diff
+		[ .10, .20, .30, .20, .15, .05],  // 25%
+		[ .05, .10, .20, .30, .25, .10],  // 50%
+		[ .02, .06, .12, .20, .30, .30],  // 75%
+		[ .01, .03, .06, .10, .20, .60]]; // 100%
+
+	public var spawnCount:Int = 0;
 	public var lastFeaturePos:Position;
+	public var lastFeature:Feature = null;
 	public var featureLayer:Layer = new Layer(30);
 	public var featureVelocity:Velocity = new Velocity(0,0);
 
@@ -26,20 +35,19 @@ class CitySystem extends FlaxenSystem
 		f.newEntity("featureProxy")
 			.add(featureVelocity);
 
-		for(i in 0...3)
-			spawnFeature(Empty);
+		spawnFeature(Empty, 3);
 
-		spawnFeature(Building(0));
+		spawnFeature(Building, 0);
 		spawnFeature(Empty);
-		spawnFeature(Building(1));
+		spawnFeature(Building, 1);
 		spawnFeature(Pikes);
-		spawnFeature(Building(2));
+		spawnFeature(Building, 2);
 		spawnFeature(Empty);
-		spawnFeature(Building(3));
+		spawnFeature(Building, 3);
 		spawnFeature(Empty);
-		spawnFeature(Building(4));
+		spawnFeature(Building, 4);
 		spawnFeature(Empty);
-		spawnFeature(Building(5));
+		spawnFeature(Building, 5);
 		spawnFeature(Empty);
 
 		spawnFeatures();
@@ -65,34 +73,66 @@ class CitySystem extends FlaxenSystem
 
 	public function spawnFeatures()
 	{
-		return; // TODO
+		while(lastFeaturePos.x <= 29 * 32)
+		{
+			var difficulty = Math.min(0, 100 - spawnCount / 8) / 100; // 0.0 = easy, 1.0 = hard/max
+
+			// Spawn empty right after pikes or building?
+			if(lastFeature.type != Empty && Math.random() < (1 - difficulty) * 0.50 + 0.50) // 50-100%
+			{
+				var numToSpawn:Int = Math.floor(1 + Math.random() * 15 * (1 - difficulty));
+				spawnFeature(Empty, numToSpawn);
+			}
+
+			// Spawn building?
+			else if(Math.random() < 0.25 + difficulty * 0.50)
+			{
+				var raw:Float = difficulty * 4;
+				var lower:Int = Math.floor(raw); //0-4
+				var higher:Int = lower + 1; // 1-5
+				var slider:Float = (raw - lower);
+				var size:Int = 0;
+				var roll:Float = Math.random();
+				while(size < 5)
+				{
+					var chance = (chart[higher][size] - chart[lower][size]) * slider + chart[lower][size];				
+					if(roll < chance)
+						break;
+
+					size++;
+					roll -= chance;
+				}
+				spawnFeature(Building, size);
+			}
+
+			// Spawn pikes if we didn't spawn empty?
+			else if(Math.random() < 0.10 + (.25 * difficulty)) // 10-30%
+				spawnFeature(Pikes);
+		}
 	}
 
-	public function spawnFeature(type:FeatureType)
+	public function spawnFeature(type:FeatureType, size:Int = 1)
 	{		
-		var spawnX = 0;
+		var spawnX:Float = 0;
 		if(lastFeaturePos != null)
-		{
-			var slot = Math.floor(lastFeaturePos.x / 32) + 1;
-			spawnX = 32 * slot;
-		}
+			spawnX = lastFeaturePos.x + lastFeature.size * 32;
 
+		lastFeature = new Feature(type, size);
+		lastFeaturePos = new Position(spawnX, 250);
 		var e = f.newEntity()
 			.add(new Offset(0, -1, true))
 			.add(featureVelocity)
-			.add(new Feature(type));
-		lastFeaturePos = new Position(spawnX, 250);
-		e.add(lastFeaturePos);
+			.add(lastFeature)
+			.add(lastFeaturePos);
+		spawnCount++;
 
 		switch(type)
 		{
 			case Pikes:
 			e.add(new Image("art/pikes.png")).add(featureLayer);
 
-			case Building(size):
+			case Building:
 			e.add(new Image('art/building$size.png')).add(featureLayer);
-			while(size-- > 1)
-				spawnFeature(Empty); // Add a number of empties so the total number of "features" is constant, even though a Building(5) takes up 5 spaces
 
 			case Empty:
 		}
