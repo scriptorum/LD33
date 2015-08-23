@@ -2,22 +2,27 @@ package game.handler;
 
 import ash.core.Entity;
 import com.haxepunk.utils.Key;
+import flaxen.common.LoopType;
+import flaxen.common.OnCompleteAnimation;
+import flaxen.component.Animation;
 import flaxen.component.Image;
-import flaxen.component.Offset;
-import flaxen.component.Size;
-import flaxen.component.Position;
+import flaxen.component.ImageGrid;
 import flaxen.component.Layer;
-import flaxen.component.Velocity;
+import flaxen.component.Offset;
+import flaxen.component.Position;
 import flaxen.component.Repeating;
+import flaxen.component.Size;
+import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenHandler;
 import flaxen.Log;
-import flaxen.util.LogUtil;
 import flaxen.service.InputService;
 import flaxen.system.MovementSystem;
-import game.system.CollisionSystem;
+import flaxen.util.LogUtil;
 import game.component.Monster;
 import game.system.CitySystem;
+import game.system.CollisionSystem;
+
 
 class PlayHandler extends FlaxenHandler
 {
@@ -63,11 +68,25 @@ class PlayHandler extends FlaxenHandler
 			.add(new Layer(70))
 			.add(Position.zero());
 
-		f.newEntity("monster")
+		f.newComponentSet("monsterIdleSet").addClass(Animation, ["12-19", 30, Forward]);
+		f.newComponentSet("monsterSpeed0Set").addClass(Animation, ["0,23-35", 30, Forward]);
+		f.newComponentSet("monsterSpeed1Set").addClass(Animation, ["0,23-35", 45, Forward]);
+		f.newComponentSet("monsterSpeed2Set").addClass(Animation, ["12,34-45", 30, Forward]);
+		f.newComponentSet("monsterSpeed3Set").addClass(Animation, ["12,34-45", 45, Forward]);
+		f.newComponentSet("monsterSpeed4Set").addClass(Animation, ["45-56", 30, Forward]);
+		f.newComponentSet("monsterSpeed5Set").addClass(Animation, ["45-56", 45, Forward]);
+		f.newComponentSet("monsterSpeed6Set").addClass(Animation, ["57-62", 30, Forward]);
+		f.newComponentSet("monsterSpeed7Set").addClass(Animation, ["57-62", 45, Forward]);
+		f.newComponentSet("monsterPikedSet").addClass(Animation, ["12-22", 30, None, Last]);
+		f.newComponentSet("monsterKnockbackSet").addClass(Animation, ["0-11", 30, None, Last]);
+
+		f.newSetEntity("monsterIdleSet", "monster")
 			.add(new Image("art/monster.png"))
-			.add(new Position(10, 193))
+			.add(new ImageGrid(141, 101))
+			.add(new Offset(-80,-71))
+			.add(new Position(10, 250-2))
 			.add(monster)
-			.add(new Layer(20));
+			.add(new Layer(10));
 	}
 
 	override public function update()
@@ -93,13 +112,13 @@ class PlayHandler extends FlaxenHandler
 		if(key == Key.DIGIT_5) updateSpeed(5);
 		#end
 
-		if(monster.speedChanged)
+		if(monster.nextSpeed != null)
 		{
-			monster.speedChanged = false;
-			updateSpeed(monster.speed);
+			updateSpeed(monster.nextSpeed);
+			monster.nextSpeed = null;
 		}
 
-		if(key == Key.SPACE && monster.speed < MAX_SPEED && monster.speed >= 0) 
+		if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
 			updateSpeed(monster.speed + 1);
 
 		InputService.clearLastKey();
@@ -113,19 +132,40 @@ class PlayHandler extends FlaxenHandler
 		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
 	}
 
-	private function updateSpeed(speed:Int)
+	private function updateSpeed(newSpeed:Int)
 	{
-		setVelocity("clouds", 5, speed);
-		setVelocity("mountains", 20, speed);
-		setVelocity("featureProxy", 50, speed);
+		setVelocity("clouds", 5, newSpeed);
+		setVelocity("mountains", 20, newSpeed);
+		setVelocity("featureProxy", 50, newSpeed);
 
-		if(speed >= 0)
+		// Change monster anim
+		var monsterEnt = f.getEntity("monster");
+		if(newSpeed >= 0)
 		{
-			var pos = f.getComponent("monster", Position);
-			pos.x = 5 + 6 * speed;
+			var pos = f.getComponent(monsterEnt, Position);
+			pos.x = 80 + 6 * newSpeed;
 		}
 
-		monster.speed = speed;
+		var setName = "Speed0";
+		if (newSpeed == -1) setName = "Idle";
+		else if (newSpeed == -2) setName = "Knockback";
+		else if (newSpeed == -3) setName = "Piked";
+		else
+		{
+			var index = Math.floor(newSpeed);
+			if(index > 6)
+			{
+				if(index > 10) 
+					index = 7;
+				else index = 6;
+			}
+			setName = "Speed" + index;
+		}
+
+		trace("Updating speed to " + newSpeed + " using set " + setName);
+		f.addSet(monsterEnt, 'monster${setName}Set');
+
+		monster.speed = newSpeed;
 	}
 
 	override public function stop()

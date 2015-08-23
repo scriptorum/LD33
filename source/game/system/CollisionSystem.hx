@@ -28,7 +28,7 @@ class CollisionSystem extends FlaxenSystem
 		if(monsterEnt == null)
 			return; // no monster found; disable system
 
-		var pos:Float = monsterEnt.get(Position).x + monsterEnt.get(Image).width - 5;
+		var pos:Float = monsterEnt.get(Position).x + 12;
 		var monster:Monster = monsterEnt.get(Monster);
 
 		var nextFeatureEnt:Entity = f.getEntity(monster.nextFeatureId, false);
@@ -85,6 +85,7 @@ class CollisionSystem extends FlaxenSystem
 	// featureEnt.remove(flaxen.component.Display);
 	 public function resolveBuildingCollision(monster:Monster, feature:Feature, featureEnt:Entity)
 	 {
+	 	// Successful demolition
 	 	if(feature.size <= monster.speed)
 	 	{
 	 		// Replace building with rubble
@@ -100,23 +101,17 @@ class CollisionSystem extends FlaxenSystem
 	 		f.newSound('sound/destroy$id.wav');
 
 	 		// Slow down monster
-	 		monster.speed -= feature.size;
-	 		monster.speedChanged = true;
+	 		monster.nextSpeed = monster.speed - feature.size;
+trace("Collision feature:" + feature.size + " monster:" + monster.speed + " nextSpeed:"+ monster.nextSpeed);
 	 	}
 
+	 	// Unsuccessful demo
 	 	else
 	 	{
-	 		trace("BONK!");
 	 		f.newSound("sound/crack.wav");
 
-		 	// TODO Add death sequence, show sitting monster with headache and seeing stars
-
-		 	// TODO Update speed to null
-		 	monster.speed = -1;
-		 	monster.speedChanged = true;
-
-		 	// TODO Remove input controls
-
+		 	// Trigger knockback collision
+		 	monster.nextSpeed = -2;
 
 		 	// TODO Popup message and score
 	 	}
@@ -128,18 +123,12 @@ class CollisionSystem extends FlaxenSystem
 	 	if(monster.speed <= 1)
 	 		return; // Safe to pass at slow speed
 
-	 	// Otherwise you die! TODO
-	 	trace("You die from violent painful spikes! Why did you have to go so fast?!!!");
+	 	// Otherwise you die!
 	 	f.newSound("sound/ouch.wav");
 
-	 	// TODO Add death sequence, show hurt guy
+	 	// Trigger monster pike anim
+	 	monster.nextSpeed = -3;
 
-	 	// TODO Update speed to null
-	 	monster.speed = -1;
-	 	monster.speedChanged = true;
-
-	 	// TODO Change connotation of speed 0 to speed 1 and up them all because it's frankly confusing, also change building sizes +1, duh
-	 	// TODO Remove input controls
 	 	// TODO Popup message and score
 	 }
 }
