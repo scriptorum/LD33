@@ -28,19 +28,13 @@ class PlayHandler extends FlaxenHandler
 {
 	public static var MAX_SPEED:Int = 20;
 	public var monster:Monster = new Monster();
+	public var state:Int = 1; // intro / play / end
 
 	override public function start()
 	{
 		addEntities();	
-		addSystems();
-		updateSpeed(0);
-	}
-
-	public function addSystems()
-	{
+		updateSpeed(-1);
 		f.addSystem(new MovementSystem(f));
-		f.addSystem(new CollisionSystem(f));
-		f.addSystem(new CitySystem(f));
 	}
 
 	public function addEntities()
@@ -68,9 +62,9 @@ class PlayHandler extends FlaxenHandler
 			.add(new Layer(70))
 			.add(Position.zero());
 
-		f.newComponentSet("monsterIdleSet").addClass(Animation, ["12-19", 30, Forward]);
-		f.newComponentSet("monsterSpeed0Set").addClass(Animation, ["0,23-35", 30, Forward]);
-		f.newComponentSet("monsterSpeed1Set").addClass(Animation, ["0,23-35", 45, Forward]);
+		f.newComponentSet("monsterIdleSet").addClass(Animation, ["63-80", 30, Forward]);
+		f.newComponentSet("monsterSpeed0Set").addClass(Animation, ["0,23-33", 30, Forward]);
+		f.newComponentSet("monsterSpeed1Set").addClass(Animation, ["0,23-33", 45, Forward]);
 		f.newComponentSet("monsterSpeed2Set").addClass(Animation, ["12,34-45", 30, Forward]);
 		f.newComponentSet("monsterSpeed3Set").addClass(Animation, ["12,34-45", 45, Forward]);
 		f.newComponentSet("monsterSpeed4Set").addClass(Animation, ["45-56", 30, Forward]);
@@ -84,9 +78,26 @@ class PlayHandler extends FlaxenHandler
 			.add(new Image("art/monster.png"))
 			.add(new ImageGrid(141, 101))
 			.add(new Offset(-80,-71))
-			.add(new Position(10, 250-2))
+			.add(new Position(80, 250-2))
 			.add(monster)
 			.add(new Layer(10));
+
+		addTitling();
+	}
+
+	public function addTitling()
+	{
+		f.newEntity("title")
+			.add(new Image("art/title.png"))
+			.add(Offset.center())
+			.add(Position.center().subtract(0,30))
+			.add(new Layer(0));
+
+		f.newEntity("startButton")
+			.add(new Image("art/startButton.png"))
+			.add(Offset.center())
+			.add(Position.center().add(0,45))
+			.add(new Layer(0));
 	}
 
 	override public function update()
@@ -112,21 +123,43 @@ class PlayHandler extends FlaxenHandler
 		if(key == Key.DIGIT_5) updateSpeed(5);
 		#end
 
-		if(monster.nextSpeed != null)
+		switch(state)
 		{
-			updateSpeed(monster.nextSpeed);
-			monster.nextSpeed = null;
+			case 1:
+			if(f.isPressed("startButton"))
+			{
+				f.removeEntity("startButton");
+				f.removeEntity("title");
+				f.addSystem(new CollisionSystem(f));
+				f.addSystem(new CitySystem(f));
+				updateSpeed(0);
+				state = 2;
+			}
+
+			case 2:
+			if(monster.nextSpeed != null)
+			{
+				updateSpeed(monster.nextSpeed);
+				monster.nextSpeed = null;
+			}
+
+			if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
+			{
+				updateSpeed(monster.speed + 1);
+			}
 		}
 
-		if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
-			updateSpeed(monster.speed + 1);
+
 
 		InputService.clearLastKey();
 	}
 
 	private function setVelocity(name:String, featureSpeed:Int, monsterSpeed:Int)
 	{
-		var e = f.getEntity(name);
+		var e = f.getEntity(name, false);
+		if(e == null)
+			return;
+
 		var vel:Float = monsterSpeed < 0 ? 0 :
 			featureSpeed + featureSpeed * monsterSpeed * 0.5;
 		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
@@ -166,6 +199,17 @@ class PlayHandler extends FlaxenHandler
 		f.addSet(monsterEnt, 'monster${setName}Set');
 
 		monster.speed = newSpeed;
+
+		if(newSpeed == -2 || newSpeed == -3)
+		{
+			state = 1;
+			f.removeSystemByClass(CollisionSystem);
+			f.removeSystemByClass(CitySystem);
+			addTitling();
+		 	for(node in f.ash.getNodeList(game.node.FeatureNode))
+		 		f.removeEntity(node.entity);
+		 	f.removeEntity("featureProxy");
+		 }
 	}
 
 	override public function stop()

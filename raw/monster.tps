@@ -232,6 +232,24 @@
             <filename>spriter/tps/speed2_009.png</filename>
             <filename>spriter/tps/speed2_010.png</filename>
             <filename>spriter/tps/speed2_011.png</filename>
+            <filename>spriter/tps/zidle_000.png</filename>
+            <filename>spriter/tps/zidle_001.png</filename>
+            <filename>spriter/tps/zidle_002.png</filename>
+            <filename>spriter/tps/zidle_003.png</filename>
+            <filename>spriter/tps/zidle_004.png</filename>
+            <filename>spriter/tps/zidle_005.png</filename>
+            <filename>spriter/tps/zidle_006.png</filename>
+            <filename>spriter/tps/zidle_007.png</filename>
+            <filename>spriter/tps/zidle_008.png</filename>
+            <filename>spriter/tps/zidle_009.png</filename>
+            <filename>spriter/tps/zidle_010.png</filename>
+            <filename>spriter/tps/zidle_011.png</filename>
+            <filename>spriter/tps/zidle_012.png</filename>
+            <filename>spriter/tps/zidle_013.png</filename>
+            <filename>spriter/tps/zidle_014.png</filename>
+            <filename>spriter/tps/zidle_015.png</filename>
+            <filename>spriter/tps/zidle_016.png</filename>
+            <filename>spriter/tps/zidle_017.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

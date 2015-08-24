@@ -86,8 +86,12 @@ class CitySystem extends FlaxenSystem
 				spawnFeature(Empty, numToSpawn);
 			}
 
+			// Spawn pikes if we didn't spawn empty?
+			else if(Math.random() < 0.15 + (.25 * difficulty))
+				spawnFeature(Pikes);
+
 			// Spawn building?
-			else if(Math.random() < 0.25 + difficulty * 0.50)
+			else //if(Math.random() < 0.25 + difficulty * 0.50)
 			{
 				var raw:Float = difficulty * 4;
 				var lower:Int = Math.floor(raw); //0-4
@@ -106,10 +110,6 @@ class CitySystem extends FlaxenSystem
 				}
 				spawnFeature(Building, size);
 			}
-
-			// Spawn pikes if we didn't spawn empty?
-			else if(Math.random() < 0.10 + (.25 * difficulty)) // 10-30%
-				spawnFeature(Pikes);
 		}
 	}
 
