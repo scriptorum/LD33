@@ -36,25 +36,12 @@ class CitySystem extends FlaxenSystem
 		f.newEntity("featureProxy")
 			.add(featureVelocity);
 
-		spawnFeature(Empty, 8);
+		spawnFeature(Empty, 25);
 
 		// Point monster toward some future feature to begin the collision-check-chain
 		var first = spawnFeature(Empty);
 		var monster:Monster = f.getComponent("monster", Monster);
 		monster.nextFeatureId = first.name;
-
-		// spawnFeature(Empty);
-		// spawnFeature(Building, 1);
-		// spawnFeature(Pikes);
-		// spawnFeature(Building, 2);
-		// spawnFeature(Empty);
-		// spawnFeature(Building, 3);
-		// spawnFeature(Empty);
-		// spawnFeature(Building, 4);
-		// spawnFeature(Empty);
-		// spawnFeature(Building, 5);
-		// spawnFeature(Empty);
-
 		spawnFeatures();
 
 		// com.haxepunk.HXP.camera.x = -160;
@@ -87,7 +74,7 @@ class CitySystem extends FlaxenSystem
 			}
 
 			// Spawn pikes if we didn't spawn empty?
-			else if(Math.random() < 0.15 + (.25 * difficulty))
+			else if(Math.random() < 0.4 + (.3 * difficulty))
 				spawnFeature(Pikes);
 
 			// Spawn building?

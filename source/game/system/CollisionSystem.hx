@@ -101,8 +101,7 @@ class CollisionSystem extends FlaxenSystem
 	 		f.newSound('sound/destroy$id.wav');
 
 	 		// Slow down monster
-	 		monster.nextSpeed = monster.speed - feature.size;
-trace("Collision feature:" + feature.size + " monster:" + monster.speed + " nextSpeed:"+ monster.nextSpeed);
+	 		monster.nextSpeed = monster.speed - feature.size *.8;
 	 	}
 
 	 	// Unsuccessful demo
@@ -120,7 +119,7 @@ trace("Collision feature:" + feature.size + " monster:" + monster.speed + " next
 
 	 public function resolvePikesCollision(monster:Monster)
 	 {
-	 	if(monster.speed <= 1)
+	 	if(monster.speed <= 4)
 	 		return; // Safe to pass at slow speed
 
 	 	// Otherwise you die!

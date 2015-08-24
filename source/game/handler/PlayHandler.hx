@@ -22,13 +22,14 @@ import flaxen.util.LogUtil;
 import game.component.Monster;
 import game.system.CitySystem;
 import game.system.CollisionSystem;
-
+import flaxen.component.Text;
 
 class PlayHandler extends FlaxenHandler
 {
 	public static var MAX_SPEED:Int = 20;
 	public var monster:Monster = new Monster();
 	public var state:Int = 1; // intro / play / end
+	public var score:Float = 0;
 
 	override public function start()
 	{
@@ -82,6 +83,16 @@ class PlayHandler extends FlaxenHandler
 			.add(monster)
 			.add(new Layer(10));
 
+		var style = TextStyle.createTTF();
+		style.halign = Left;
+		f.resolveEntity("score")
+			.add(new Text("0"))
+			.add(style)
+			.add(new Size(50, 50))		
+			.add(Position.topRight().add(-50, 10));
+		score = 0;
+		updateScore();
+
 		addTitling();
 	}
 
@@ -107,11 +118,13 @@ class PlayHandler extends FlaxenHandler
 		#if debug
 		if(key == Key.D)
 		{
+
 			trace("Entities:");
 			trace(LogUtil.dumpEntities(f));
 			
 			trace("Component Sets:");
-			for(setName in f.getComponentSetKeys())
+			for(
+				setName in f.getComponentSetKeys())
 				trace(setName + ":{" + f.getComponentSet(setName) + "}");
 		}
 
@@ -132,8 +145,11 @@ class PlayHandler extends FlaxenHandler
 				f.removeEntity("title");
 				f.addSystem(new CollisionSystem(f));
 				f.addSystem(new CitySystem(f));
+				score = 0;
+				updateScore();
 				updateSpeed(0);
 				state = 2;
+				f.newSound("sound/twinkle.wav");
 			}
 
 			case 2:
@@ -145,27 +161,42 @@ class PlayHandler extends FlaxenHandler
 
 			if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
 			{
-				updateSpeed(monster.speed + 1);
+				updateSpeed(monster.speed + 2.5);
 			}
+
+			score += (monster.speed >=0  ? com.haxepunk.HXP.elapsed  * (monster.speed + 1) : 0);
+			updateScore();
+
+			if(monster.speed >= 0)
+				updateSpeed(Math.max(0, monster.speed - com.haxepunk.HXP.elapsed * 4));
 		}
-
-
 
 		InputService.clearLastKey();
 	}
 
-	private function setVelocity(name:String, featureSpeed:Int, monsterSpeed:Int)
+	private function updateScore()
+	{
+		var text = f.getComponent("score", Text);
+		var str:String = cast Math.floor(score * 100);
+		if(str.length == 2)
+			str = "0" + str;
+		else if (str.length == 1)
+			str = "00" + str;
+		text.message = str.substr(0, str.length - 2) + "." + str.substr(-2, 2);
+	}
+
+	private function setVelocity(name:String, featureSpeed:Int, monsterSpeed:Float)
 	{
 		var e = f.getEntity(name, false);
 		if(e == null)
 			return;
 
 		var vel:Float = monsterSpeed < 0 ? 0 :
-			featureSpeed + featureSpeed * monsterSpeed * 0.5;
+			featureSpeed + (featureSpeed * (monsterSpeed / 5)) * 2.0;
 		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
 	}
 
-	private function updateSpeed(newSpeed:Int)
+	private function updateSpeed(newSpeed:Float)
 	{
 		setVelocity("clouds", 5, newSpeed);
 		setVelocity("mountains", 20, newSpeed);
@@ -195,8 +226,11 @@ class PlayHandler extends FlaxenHandler
 			setName = "Speed" + index;
 		}
 
-		trace("Updating speed to " + newSpeed + " using set " + setName);
-		f.addSet(monsterEnt, 'monster${setName}Set');
+		if(monster.set != setName)
+		{
+			f.addSet(monsterEnt, 'monster${setName}Set');
+			monster.set = setName;
+		}
 
 		monster.speed = newSpeed;
 
