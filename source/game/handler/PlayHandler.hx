@@ -192,7 +192,7 @@ class PlayHandler extends FlaxenHandler
 			return;
 
 		var vel:Float = monsterSpeed < 0 ? 0 :
-			featureSpeed + (featureSpeed * (monsterSpeed / 5)) * 2.0;
+			featureSpeed + (featureSpeed * ((monsterSpeed + 3) / 5)) * 2.0;
 		f.resolveComponent(e, Velocity, [-vel, 0]).set(-vel, 0);
 	}
 
@@ -200,7 +200,7 @@ class PlayHandler extends FlaxenHandler
 	{
 		setVelocity("clouds", 5, newSpeed);
 		setVelocity("mountains", 20, newSpeed);
-		setVelocity("featureProxy", 50, newSpeed);
+		setVelocity("featureProxy", 75, newSpeed);
 
 		// Change monster anim
 		var monsterEnt = f.getEntity("monster");
