@@ -16,8 +16,15 @@ Ludum Dare #33 compo
 - Clearer and animated pikes
 - Additional input control (spacebar to start, click to flap)
 - Test variant slowdown as a percentage of total speed to be more Flappy like
+- Music? What music?
+- A moving lawn would be nice
 
-##BUILD NOTES
+## To Do
+- Create a postcompo branch
+- Examine Threadbare preloader which just showed at 0% in practice
+- Do some barebones audio testing to figure out why the first sound played always comes at a delay
+
+## Build Notes
 - Export Spriter files with a custom rect of -80,-70,60,30 to make all the cells 141x101. I had a hard time working with this tool!
 
 
