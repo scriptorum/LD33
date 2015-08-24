@@ -134,6 +134,7 @@ class PlayHandler extends FlaxenHandler
 		if(key == Key.DIGIT_3) updateSpeed(3);
 		if(key == Key.DIGIT_4) updateSpeed(4);
 		if(key == Key.DIGIT_5) updateSpeed(5);
+		if(key == Key.G) trace("God Mode:" + f.toggleMarker("godMode"));
 		#end
 
 		switch(state)
@@ -143,6 +144,10 @@ class PlayHandler extends FlaxenHandler
 			{
 				f.removeEntity("startButton");
 				f.removeEntity("title");
+				monster.nextFeatureId = null;
+				monster.speed = 0;
+				monster.nextSpeed = null;
+				monster.set = "Idle";
 				f.addSystem(new CollisionSystem(f));
 				f.addSystem(new CitySystem(f));
 				score = 0;

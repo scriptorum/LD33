@@ -28,6 +28,7 @@ class CitySystem extends FlaxenSystem
 	public var lastFeature:Feature = null;
 	public var featureLayer:Layer = new Layer(30);
 	public var featureVelocity:Velocity = new Velocity(0,0);
+	public var monster:Monster;
 
 	public function new(f:Flaxen)
 	{ 
@@ -40,7 +41,7 @@ class CitySystem extends FlaxenSystem
 
 		// Point monster toward some future feature to begin the collision-check-chain
 		var first = spawnFeature(Empty);
-		var monster:Monster = f.getComponent("monster", Monster);
+		monster = f.getComponent("monster", Monster);
 		monster.nextFeatureId = first.name;
 		spawnFeatures();
 
@@ -62,7 +63,7 @@ class CitySystem extends FlaxenSystem
 
 	public function spawnFeatures()
 	{
-		while(lastFeaturePos.x <= 29 * 32)
+		while(lastFeaturePos.x <= (30 + 15) * 32)
 		{
 			var difficulty = Math.min(0, 100 - spawnCount / 8) / 100; // 0.0 = easy, 1.0 = hard/max
 
@@ -132,6 +133,11 @@ class CitySystem extends FlaxenSystem
 			case Empty:
 			case Rubble:
 		}
+
+		// BUG FIX Two users reported going into a state after button mashing where they stopped colliding.
+		var monster = f.getComponent("monster", Monster);
+		if(monster != null && monster.nextFeatureId == null)
+			monster.nextFeatureId = e.name;
 
 		return e;
 	}

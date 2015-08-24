@@ -33,7 +33,7 @@ class CollisionSystem extends FlaxenSystem
 
 		var nextFeatureEnt:Entity = f.getEntity(monster.nextFeatureId, false);
 		if(nextFeatureEnt == null)
-			return; // No next feature, disable system
+			return;
 		
 		// Check for player collision with next collidable feature
 		if(pos >= f.getComponent(nextFeatureEnt, Position).x)
@@ -105,7 +105,7 @@ class CollisionSystem extends FlaxenSystem
 	 	}
 
 	 	// Unsuccessful demo
-	 	else
+	 	else if(!f.hasMarker("godMode"))
 	 	{
 	 		f.newSound("sound/crack.wav");
 
@@ -119,6 +119,9 @@ class CollisionSystem extends FlaxenSystem
 
 	 public function resolvePikesCollision(monster:Monster)
 	 {
+	 	if(f.hasMarker("godMode"))
+	 		return;
+
 	 	if(monster.speed <= 4)
 	 		return; // Safe to pass at slow speed
 
