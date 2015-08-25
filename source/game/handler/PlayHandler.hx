@@ -2,6 +2,7 @@ package game.handler;
 
 import ash.core.Entity;
 import com.haxepunk.utils.Key;
+import flaxen.common.Easing;
 import flaxen.common.LoopType;
 import flaxen.common.OnCompleteAnimation;
 import flaxen.component.Animation;
@@ -13,6 +14,7 @@ import flaxen.component.Position;
 import flaxen.component.Repeating;
 import flaxen.component.Size;
 import flaxen.component.Text;
+import flaxen.component.Tween;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenHandler;
@@ -137,6 +139,8 @@ class PlayHandler extends FlaxenHandler
 		if(key == Key.DIGIT_4) updateSpeed(4);
 		if(key == Key.DIGIT_5) updateSpeed(5);
 		if(key == Key.G) trace("God Mode:" + f.toggleMarker("godMode"));
+		if(key == 187) { monster.level += 10; trace("Cheat! Level now:" + monster.level); }
+		if(key == 188) { monster.level -= 10; trace("Cheat! Level now:" + monster.level); }
 		#end
 
 		switch(state)
@@ -148,6 +152,7 @@ class PlayHandler extends FlaxenHandler
 				f.removeEntity("title");
 				monster.nextFeatureId = null;
 				monster.speed = 0;
+				monster.level = 0;
 				monster.nextSpeed = null;
 				monster.set = "Idle";
 				f.addSystem(new CollisionSystem(f));
@@ -214,7 +219,9 @@ class PlayHandler extends FlaxenHandler
 		if(newSpeed >= 0)
 		{
 			var pos = f.getComponent(monsterEnt, Position);
-			pos.x = 80 + 6 * newSpeed;
+			var target = 80 + 6 * newSpeed;
+			if(target != pos.x)
+				monsterEnt.add(new Tween(0.25, Easing.quadOut).to(pos, "x", target));
 		}
 
 		var setName = "Speed0";

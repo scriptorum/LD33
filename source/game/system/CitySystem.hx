@@ -9,6 +9,7 @@ import flaxen.component.Position;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
+import flaxen.util.MathUtil;
 import game.common.FeatureType;
 import game.component.Feature;
 import game.component.Monster;
@@ -65,40 +66,59 @@ class CitySystem extends FlaxenSystem
 	{
 		while(lastFeaturePos.x <= (30 + 15) * 32)
 		{
-			var difficulty = Math.min(0, 100 - spawnCount / 8) / 100; // 0.0 = easy, 1.0 = hard/max
-
-			// Spawn empty right after pikes or building?
-			if(lastFeature.type != Empty && Math.random() < (1 - difficulty) * 0.50 + 0.50) // 50-100%
+			if(spawnCount >= 8)
 			{
-				var numToSpawn:Int = Math.floor(1 + Math.random() * 15 * (1 - difficulty));
-				spawnFeature(Empty, numToSpawn);
+				monster.level += 1;
+				trace("Level up:"  + monster.level);
+				spawnCount -= 8;
 			}
 
-			// Spawn pikes if we didn't spawn empty?
-			else if(Math.random() < 0.4 + (.3 * difficulty))
-				spawnFeature(Pikes);
+			var difficulty = Math.min(1, monster.level / 100); // 0.0 = easy, 1.0 = hard/max
 
-			// Spawn building?
-			else //if(Math.random() < 0.25 + difficulty * 0.50)
+			spawnBuilding(difficulty);
+			spawnEmpty(difficulty);
+
+			if(Math.random() < 0.4 + (.3 * difficulty))
 			{
-				var raw:Float = difficulty * 4;
-				var lower:Int = Math.floor(raw); //0-4
-				var higher:Int = lower + 1; // 1-5
-				var slider:Float = (raw - lower);
-				var size:Int = 0;
-				var roll:Float = Math.random();
-				while(size < 5)
-				{
-					var chance = (chart[higher][size] - chart[lower][size]) * slider + chart[lower][size];				
-					if(roll < chance)
-						break;
-
-					size++;
-					roll -= chance;
-				}
-				spawnFeature(Building, size);
+				spawnFeature(Pikes);
+				spawnEmpty(difficulty);
 			}
 		}
+	}
+
+	public function roll(min:Float, max:Float, dice:Int = 1): Float
+	{
+		var result:Float = 0;
+		while(dice-- > 0)
+			result += MathUtil.rnd(min, max);
+		return result;
+	}
+
+	public function spawnEmpty(difficulty:Float)
+	{
+		var spawnCount = 3 + Math.floor(roll(0, 7 * (1 - difficulty), 2));
+		spawnFeature(Empty, spawnCount);
+	}
+
+	public function spawnBuilding(difficulty:Float)
+	{
+		var raw:Float = difficulty * 4;
+		var lower:Int = Math.floor(raw); //0-4
+		var higher:Int = cast Math.min(4, lower + 1); // 1-4
+		var slider:Float = (raw - lower);
+		var size:Int = 0;
+		var roll:Float = Math.random();
+
+		while(size < 5)
+		{
+			var chance = (chart[higher][size] - chart[lower][size]) * slider + chart[lower][size];				
+			if(roll < chance)
+				break;
+
+			size++;
+			roll -= chance;
+		}
+		spawnFeature(Building, size);	
 	}
 
 	public function spawnFeature(type:FeatureType, size:Int = 1): Entity
