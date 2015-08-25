@@ -3,7 +3,7 @@ Ludum Dare #33 compo
 
 This was my submission for Ludum Dare 33. Theme: You are the monster.
 
-For the post-compo version, see [LD33/master](https://github.com/scriptorum/LD33/tree/master).
+This is the POST-compo version. For the post-compo version, go to the [LD33/compo branch](https://github.com/scriptorum/LD33/tree/compo).
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
