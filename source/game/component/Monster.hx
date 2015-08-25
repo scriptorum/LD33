@@ -10,6 +10,7 @@ class Monster
 	public var nextSpeed:Null<Float> = null;
 	public var set:String;
 	public var level:Int = 0;
+	public var deceleration:Float = 0;
 
 	public function new()
 	{

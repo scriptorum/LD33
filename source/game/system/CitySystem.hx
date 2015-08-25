@@ -69,7 +69,6 @@ class CitySystem extends FlaxenSystem
 			if(spawnCount >= 8)
 			{
 				monster.level += 1;
-				trace("Level up:"  + monster.level);
 				spawnCount -= 8;
 			}
 

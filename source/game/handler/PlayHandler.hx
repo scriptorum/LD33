@@ -2,6 +2,7 @@ package game.handler;
 
 import ash.core.Entity;
 import com.haxepunk.utils.Key;
+import com.haxepunk.HXP;
 import flaxen.common.Easing;
 import flaxen.common.LoopType;
 import flaxen.common.OnCompleteAnimation;
@@ -26,6 +27,7 @@ import flaxen.util.LogUtil;
 import game.component.Monster;
 import game.system.CitySystem;
 import game.system.CollisionSystem;
+
 
 class PlayHandler extends FlaxenHandler
 {
@@ -155,6 +157,7 @@ class PlayHandler extends FlaxenHandler
 				monster.level = 0;
 				monster.nextSpeed = null;
 				monster.set = "Idle";
+				monster.deceleration = 0;
 				f.addSystem(new CollisionSystem(f));
 				f.addSystem(new CitySystem(f));
 				score = 0;
@@ -173,17 +176,29 @@ class PlayHandler extends FlaxenHandler
 
 			if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
 			{
+				monster.deceleration = 0;
 				updateSpeed(monster.speed + 2.5);
 			}
 
-			score += (monster.speed >=0  ? com.haxepunk.HXP.elapsed  * (monster.speed + 1) : 0);
+			score += (monster.speed >=0  ? HXP.elapsed  * (monster.speed + 1) : 0);
 			updateScore();
 
-			if(monster.speed >= 0)
-				updateSpeed(Math.max(0, monster.speed - com.haxepunk.HXP.elapsed * 4));
+			slowMonster();
 		}
 
 		InputService.clearLastKey();
+	}
+
+	private function slowMonster()
+	{
+		if(monster.speed < 0)
+			return;
+
+		monster.deceleration += 0.5 * HXP.elapsed;
+		var newSpeed = Math.max(0, monster.speed - monster.deceleration);
+		if(newSpeed == 0)
+			monster.deceleration = 0;
+		updateSpeed(newSpeed);
 	}
 
 	private function updateScore()

@@ -9,6 +9,7 @@ This is the source for the POST-compo version. For the compo version submitted t
 - Slight camera shake on building demolition
 - Smoother movement on monster positioning
 - Revised map generator leads to fewer impossible pike/building setups
+- Monster now slows down with increasing deceleration (more Flappy-like feel)
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
@@ -24,7 +25,6 @@ This is the source for the POST-compo version. For the compo version submitted t
 - Better indicators of whether you're going fast/slow enough to deal with obstacles
 - Clearer and animated pikes
 - Additional input control (spacebar to start, click to flap)
-- Test variant slowdown as a percentage of total speed to be more Flappy like
 - Music? What music?
 - A moving lawn would be nice
 
