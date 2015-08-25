@@ -12,17 +12,18 @@ import flaxen.component.Offset;
 import flaxen.component.Position;
 import flaxen.component.Repeating;
 import flaxen.component.Size;
+import flaxen.component.Text;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenHandler;
 import flaxen.Log;
+import flaxen.service.CameraService;
 import flaxen.service.InputService;
 import flaxen.system.MovementSystem;
 import flaxen.util.LogUtil;
 import game.component.Monster;
 import game.system.CitySystem;
 import game.system.CollisionSystem;
-import flaxen.component.Text;
 
 class PlayHandler extends FlaxenHandler
 {
@@ -33,6 +34,7 @@ class PlayHandler extends FlaxenHandler
 
 	override public function start()
 	{
+		CameraService.init(f);
 		addEntities();	
 		updateSpeed(-1);
 		f.addSystem(new MovementSystem(f));

@@ -10,10 +10,11 @@ import flaxen.component.Position;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
+import flaxen.service.CameraService;
 import game.common.FeatureType;
 import game.component.Feature;
-import game.node.FeatureNode;
 import game.component.Monster;
+import game.node.FeatureNode;
 
 class CollisionSystem extends FlaxenSystem
 {
@@ -99,6 +100,10 @@ class CollisionSystem extends FlaxenSystem
 	 		// Collision sound
 	 		var id = flaxen.util.MathUtil.rndInt(1,3);
 	 		f.newSound('sound/destroy$id.wav');
+
+	 		// Collision shake
+	 		if(feature.size > 0)
+ 				CameraService.shake(0.1 + feature.size / 15, 0.75 + feature.size / 5);
 
 	 		// Slow down monster
 	 		monster.nextSpeed = monster.speed - feature.size *.8;
