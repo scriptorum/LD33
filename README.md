@@ -3,7 +3,7 @@ Ludum Dare #33 compo
 
 This was is my game from Ludum Dare 33. Theme: You are the monster.
 
-This is the POST-compo version. For the compo version submitted to LD33, go to the [LD33/compo branch](https://github.com/scriptorum/LD33/tree/compo).
+This is the source for the POST-compo version. For the compo version submitted to LD33, go to the [LD33/compo branch](https://github.com/scriptorum/LD33/tree/compo). You can also [play the game](http://ludumdare.com/compo/ludum-dare-33/?action=preview&uid=17811) on Ludum Dare
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
