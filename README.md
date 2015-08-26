@@ -12,6 +12,7 @@ This is the source for the POST-compo version. For the compo version submitted t
 - Monster now slows down with increasing deceleration (more Flappy-like feel)
 - Updated and animated pikes. Easier to distinguish now.
 - Left click and SPACEBAR are now interchangeable.
+- After death, do not put up start button until after sfx.
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
@@ -30,7 +31,6 @@ This is the source for the POST-compo version. For the compo version submitted t
 - A moving lawn would be nice
 
 ## To Do
-- Create a postcompo branch
 - Examine Threadbare preloader which just showed at 0% in practice
 - Do some barebones audio testing to figure out why the first sound played always comes at a delay
 

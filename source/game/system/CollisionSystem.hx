@@ -7,6 +7,7 @@ import flaxen.component.Image;
 import flaxen.component.Layer;
 import flaxen.component.Offset;
 import flaxen.component.Position;
+import flaxen.component.Sound;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
@@ -112,7 +113,7 @@ class CollisionSystem extends FlaxenSystem
 	 	// Unsuccessful demo
 	 	else if(!f.hasMarker("godMode"))
 	 	{
-	 		f.newSound("sound/crack.wav");
+	 		playDeath("crack");
 
 		 	// Trigger knockback collision
 		 	monster.nextSpeed = -2;
@@ -120,6 +121,14 @@ class CollisionSystem extends FlaxenSystem
 		 	// TODO Popup message and score
 	 	}
 
+	 }
+
+	 public function playDeath(soundName:String)
+	 {
+ 		var soundEnt = f.newSound('sound/$soundName.wav');
+ 		f.newActionQueue()
+ 			.waitForComplete(soundEnt.get(Sound))
+ 			.call(function() { f.newMarker("deathSoundComplete"); });
 	 }
 
 	 public function resolvePikesCollision(monster:Monster)
@@ -131,7 +140,7 @@ class CollisionSystem extends FlaxenSystem
 	 		return; // Safe to pass at slow speed
 
 	 	// Otherwise you die!
-	 	f.newSound("sound/ouch.wav");
+	 	playDeath("ouch");
 
 	 	// Trigger monster pike anim
 	 	monster.nextSpeed = -3;

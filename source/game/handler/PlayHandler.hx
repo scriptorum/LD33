@@ -25,6 +25,7 @@ import flaxen.service.InputService;
 import flaxen.system.MovementSystem;
 import flaxen.util.LogUtil;
 import game.component.Monster;
+import game.node.FeatureNode;
 import game.system.CitySystem;
 import game.system.CollisionSystem;
 
@@ -147,26 +148,41 @@ class PlayHandler extends FlaxenHandler
 
 		switch(state)
 		{
+			// Main menu
 			case 1:
 			if(f.isPressed("startButton") || key == Key.SPACE)
 			{
+				// Remove features from previous gameplay
+			 	for(node in f.ash.getNodeList(FeatureNode))
+			 		f.removeEntity(node.entity);
+
+			 	// Remove titling
 				f.removeEntity("startButton");
 				f.removeEntity("title");
+
+				// Reset monster
 				monster.nextFeatureId = null;
 				monster.speed = 0;
 				monster.level = 0;
 				monster.nextSpeed = null;
 				monster.set = "Idle";
 				monster.deceleration = 0;
+
+				// Add gameplay systems
 				f.addSystem(new CollisionSystem(f));
 				f.addSystem(new CitySystem(f));
+
+				// Reset score, speed, and state
 				score = 0;
 				updateScore();
 				updateSpeed(0);
 				state = 2;
+
+				// Lousy sfx
 				f.newSound("sound/twinkle.wav");
 			}
 
+			// Game play
 			case 2:
 			if(monster.nextSpeed != null)
 			{
@@ -184,6 +200,16 @@ class PlayHandler extends FlaxenHandler
 			updateScore();
 
 			slowMonster();
+
+			// Death throes complete
+			case 3:
+			if(f.hasMarker("deathSoundComplete"))
+			{
+				addTitling();
+				f.removeMarker("deathSoundComplete");
+			 	f.removeEntity("featureProxy");
+			 	state = 1;
+			 }
 		}
 
 		InputService.clearLastKey();
@@ -263,15 +289,12 @@ class PlayHandler extends FlaxenHandler
 
 		monster.speed = newSpeed;
 
+		// End game .. death!
 		if(newSpeed == -2 || newSpeed == -3)
 		{
-			state = 1;
+			state = 3;
 			f.removeSystemByClass(CollisionSystem);
 			f.removeSystemByClass(CitySystem);
-			addTitling();
-		 	for(node in f.ash.getNodeList(game.node.FeatureNode))
-		 		f.removeEntity(node.entity);
-		 	f.removeEntity("featureProxy");
 		 }
 	}
 
