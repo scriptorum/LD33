@@ -22,7 +22,7 @@
     <source path="source" />
     <set name="BUILD_DIR" value="export" /> 
 
-    <app title="Threadbare" file="Threadbare" main="game.Main" company="Inscrutable Games" swf-version="11.2"/>
+    <app title="LD33" file="game" main="game.Main" company="Inscrutable Games" swf-version="11.2"/>
     <app preloader="inscrutablegames.Preloader" if="flash"/>
     <haxeflag name="--no-traces" unless="debug" if="flash"/>
 

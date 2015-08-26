@@ -10,6 +10,8 @@ This is the source for the POST-compo version. For the compo version submitted t
 - Smoother movement on monster positioning
 - Revised map generator leads to fewer impossible pike/building setups
 - Monster now slows down with increasing deceleration (more Flappy-like feel)
+- Updated and animated pikes. Easier to distinguish now.
+- Left click and SPACEBAR are now interchangeable.
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
@@ -23,7 +25,6 @@ This is the source for the POST-compo version. For the compo version submitted t
 - Tutorial tips to explain the game as you run
 - Test variant pike rules (for a variation of max speeds)
 - Better indicators of whether you're going fast/slow enough to deal with obstacles
-- Clearer and animated pikes
 - Additional input control (spacebar to start, click to flap)
 - Music? What music?
 - A moving lawn would be nice

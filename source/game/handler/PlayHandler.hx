@@ -148,7 +148,7 @@ class PlayHandler extends FlaxenHandler
 		switch(state)
 		{
 			case 1:
-			if(f.isPressed("startButton"))
+			if(f.isPressed("startButton") || key == Key.SPACE)
 			{
 				f.removeEntity("startButton");
 				f.removeEntity("title");
@@ -174,7 +174,7 @@ class PlayHandler extends FlaxenHandler
 				monster.nextSpeed = null;
 			}
 
-			if(key == Key.SPACE && monster.speed >= 0 && monster.speed < MAX_SPEED) 
+			if((InputService.clicked || key == Key.SPACE) && monster.speed >= 0 && monster.speed < MAX_SPEED) 
 			{
 				monster.deceleration = 0;
 				updateSpeed(monster.speed + 2.5);

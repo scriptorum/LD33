@@ -2,10 +2,13 @@ package game.system;
 
 import ash.core.Entity;
 import ash.core.System;
+import flaxen.component.Animation;
 import flaxen.component.Image;
+import flaxen.component.ImageGrid;
 import flaxen.component.Layer;
 import flaxen.component.Offset;
 import flaxen.component.Position;
+import flaxen.component.Tile;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
@@ -129,9 +132,9 @@ class CitySystem extends FlaxenSystem
 		var feature = new Feature(type, size);
 		var pos = new Position(spawnX, 250);
 		var e = f.newEntity('feature$type#')
-			.add(new Offset(0, -1, true))
 			.add(featureVelocity)
 			.add(feature)
+			.add(new Offset(0, -1, true))
 			.add(pos);
 		feature.id = e.name;
 		if(lastFeature != null)
@@ -144,7 +147,12 @@ class CitySystem extends FlaxenSystem
 		switch(type)
 		{
 			case Pikes:
-			e.add(new Image("art/pikes.png")).add(featureLayer);
+			var anim:Animation;
+			e.add(new Image("art/pikes.png"))
+				.add(featureLayer)
+				.add(new ImageGrid(52, 26))
+				.add(anim = new Animation("0-2", 10));
+			anim.random = true;
 
 			case Building:
 			e.add(new Image('art/building$size.png')).add(featureLayer);
