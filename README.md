@@ -1,9 +1,9 @@
 # LD33
 Ludum Dare #33 compo
 
-This was is my game from Ludum Dare 33. Theme: You are the monster.
+This is the post-compo version of my game from Ludum Dare 33. Theme: You are the monster.
 
-This is the source for the POST-compo version. For the compo version submitted to LD33, go to the [LD33/compo branch](https://github.com/scriptorum/LD33/tree/compo). You can also [play the game](http://ludumdare.com/compo/ludum-dare-33/?action=preview&uid=17811) on Ludum Dare
+For the compo version submitted to LD33, go to the [LD33/compo branch](https://github.com/scriptorum/LD33/tree/compo). You can also [play the game](http://ludumdare.com/compo/ludum-dare-33/?action=preview&uid=17811) on Ludum Dare
 
 ## Changes from the compo version
 - Slight camera shake on building demolition
