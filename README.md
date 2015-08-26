@@ -1,4 +1,4 @@
-# LD33
+# LD33: Flappy Monster
 Ludum Dare #33 compo
 
 This is the post-compo version of my game from Ludum Dare 33. Theme: You are the monster.
@@ -13,13 +13,13 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Updated and animated pikes. Easier to distinguish now.
 - Left click and SPACEBAR are now interchangeable.
 - After death, do not put up start button until after sfx.
+- Added monster shading, highlights, and selout.
 
 ## Stuff that didn't make it into the compo version
 - Rubble smoke/demo/rubble-toss effect
 - Foot pounding
 - "Stay put" rubble effects
 - Flap sound, flap puff dust, running sound
-- Shading on monster art
 - Tree parallax
 - Villagers escaping buildings/running from you
 - Sun lowers/Sunset as difficulty rise
