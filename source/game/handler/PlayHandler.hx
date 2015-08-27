@@ -70,6 +70,12 @@ class PlayHandler extends FlaxenHandler
 			.add(new Layer(70))
 			.add(Position.zero());
 
+		f.newEntity("grass")
+			.add(new Image("art/grass.png"))
+			.add(new Repeating(true, false))
+			.add(new Layer(5))
+			.add(Position.bottomLeft().subtract(0, 10));
+
 		f.newComponentSet("monsterIdleSet").addClass(Animation, ["63-80", 30, Forward]);
 		f.newComponentSet("monsterSpeed0Set").addClass(Animation, ["0,23-33", 30, Forward]);
 		f.newComponentSet("monsterSpeed1Set").addClass(Animation, ["0,23-33", 45, Forward]);
@@ -254,6 +260,7 @@ class PlayHandler extends FlaxenHandler
 		setVelocity("clouds", 5, newSpeed);
 		setVelocity("mountains", 20, newSpeed);
 		setVelocity("featureProxy", 75, newSpeed);
+		setVelocity("grass", 75, newSpeed);
 
 		// Change monster anim
 		var monsterEnt = f.getEntity("monster");

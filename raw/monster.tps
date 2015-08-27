@@ -26,7 +26,7 @@
             </struct>
         </array>
         <key>allowRotation</key>
-        <false/>
+        <true/>
         <key>premultiplyAlpha</key>
         <false/>
         <key>shapeDebug</key>
@@ -34,7 +34,7 @@
         <key>dpi</key>
         <uint>72</uint>
         <key>dataFormat</key>
-        <string>json</string>
+        <string>xml</string>
         <key>textureFileName</key>
         <filename>../assets/art/monster.png</filename>
         <key>flipPVR</key>
@@ -127,7 +127,22 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>monster.json</filename>
+                <filename>monster.xml</filename>
+            </struct>
+            <key>header</key>
+            <struct type="DataFile">
+                <key>name</key>
+                <filename></filename>
+            </struct>
+            <key>main</key>
+            <struct type="DataFile">
+                <key>name</key>
+                <filename></filename>
+            </struct>
+            <key>plaintext</key>
+            <struct type="DataFile">
+                <key>name</key>
+                <filename></filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -160,7 +175,7 @@
             <key>trimThreshold</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">None</enum>
+            <enum type="SpriteSettings::TrimMode">Trim</enum>
             <key>heuristicMask</key>
             <false/>
         </struct>
