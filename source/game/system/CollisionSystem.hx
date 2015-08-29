@@ -98,16 +98,17 @@ class CollisionSystem extends FlaxenSystem
 	}
 
 	 // Add rubble flying
+	 // TODO Change to emitter
 	 public function doRubbleFlying(size:Int, mainPos:Position)
 	 {
 	 	var offset = Offset.center();
 		var data = sizeToArea[size];
 
- 		for(i in 0...(size + 2) * 5)
+ 		for(i in 0...(size + 2) * (size + 1))
  		{
  			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
  			var alpha = new Alpha(1.0);
- 			var tween = new Tween (0.25, null, LoopType.Forward).to(rot, "angle", rot.angle + 360);
+ 			var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, LoopType.Forward).to(rot, "angle", rot.angle + 360);
  			var pos = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
  			var e = f.newEntity("brick#")
  				.add(new Image("art/brick.png"))
@@ -118,7 +119,7 @@ class CollisionSystem extends FlaxenSystem
  				.add(offset)
  				.add(rubbleGravity)
  				.add(tween)
- 				.add(new Velocity(MathUtil.rnd(-120, 120), -100));
+ 				.add(new Velocity(MathUtil.rnd(-120, 120), -200));
 
  			f.newActionQueue()
  				.wait(1.0)
@@ -129,9 +130,7 @@ class CollisionSystem extends FlaxenSystem
  	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
-	//      I have to remove the Display component as well. Tsk, shouldn't be that way.
-	// featureEnt.remove(Image);
-	// featureEnt.remove(Layer);
+	//      I have to remove the Display component as well. Tsk, shouldn't be that way. Verify bug.
 	// featureEnt.remove(flaxen.component.Display);
 	 public function resolveBuildingCollision(monster:Monster, feature:Feature, featureEnt:Entity)
 	 {
@@ -148,7 +147,7 @@ class CollisionSystem extends FlaxenSystem
 	 		doSmokeFx(feature.size, featureEnt);
 
 	 		// Add some rubble flying
-	 		// doRubbleFlying(feature.size, featureEnt.get(Position));
+	 		doRubbleFlying(feature.size, featureEnt.get(Position));
 
 	 		// Collision sound
 	 		var id = MathUtil.rndInt(1,3);
