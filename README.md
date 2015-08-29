@@ -14,11 +14,11 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Left click and SPACEBAR are now interchangeable.
 - After death, do not put up start button until after sfx.
 - Added monster shading, highlights, and selout.
+- Added smoke demolition effect.
+- Improved building edging.
 
 ## Stuff that didn't make it into the compo version
-- Rubble smoke/demo/rubble-toss effect
 - Foot pounding
-- "Stay put" rubble effects
 - Flap sound, flap puff dust, running sound
 - Tree parallax
 - Villagers escaping buildings/running from you

@@ -23,6 +23,7 @@ import flaxen.Log;
 import flaxen.service.CameraService;
 import flaxen.service.InputService;
 import flaxen.system.MovementSystem;
+import flaxen.system.GravitySystem;
 import flaxen.util.LogUtil;
 import game.component.Monster;
 import game.node.FeatureNode;
@@ -43,6 +44,7 @@ class PlayHandler extends FlaxenHandler
 		addEntities();	
 		updateSpeed(-1);
 		f.addSystem(new MovementSystem(f));
+		f.addSystem(new GravitySystem(f));
 	}
 
 	public function addEntities()
@@ -308,6 +310,7 @@ class PlayHandler extends FlaxenHandler
 	override public function stop()
 	{
 		f.removeSystemByClass(MovementSystem);
+		f.removeSystemByClass(GravitySystem);
 		f.removeSystemByClass(CollisionSystem);
 		f.removeSystemByClass(CitySystem);
 	}

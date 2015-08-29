@@ -3,17 +3,23 @@ package game.system;
 import ash.core.Entity;
 import ash.core.Node;
 import ash.core.System;
+import flaxen.common.LoopType;
+import flaxen.component.Alpha;
+import flaxen.component.Emitter;
+import flaxen.component.Gravity;
 import flaxen.component.Image;
 import flaxen.component.Layer;
 import flaxen.component.Offset;
-import flaxen.component.Emitter;
 import flaxen.component.Position;
 import flaxen.component.Rotation;
+import flaxen.component.Size;
 import flaxen.component.Sound;
+import flaxen.component.Tween;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
 import flaxen.service.CameraService;
+import flaxen.util.MathUtil;
 import game.common.FeatureType;
 import game.component.Feature;
 import game.component.Monster;
@@ -24,6 +30,7 @@ class CollisionSystem extends FlaxenSystem
 	private var sizeToArea:Array<{x:Float, y:Float}> = [{ x: 20,  y:31 }, { x: 32,  y:61 }, { x: 64,  y:95 }, { x: 96, y:122 }, { x:128, y:154 }, { x:160, y:186 }];
 	private var smokeLayer:Layer = new Layer(30);
 	private var rubbleLayer:Layer = new Layer(20);
+	private var rubbleGravity:Gravity = new Gravity(0, 300);
 
 	public function new(f:Flaxen)
 	{ 
@@ -32,6 +39,11 @@ class CollisionSystem extends FlaxenSystem
 
 	override public function update(time:Float)
 	{
+		if(flaxen.service.InputService.check(com.haxepunk.utils.Key.F))
+		{
+			doRubbleFlying(5, new Position(650, 250));
+		}
+
 		var monsterEnt:Entity = f.getEntity("monster", false);
 		if(monsterEnt == null)
 			return; // no monster found; disable system
@@ -65,9 +77,7 @@ class CollisionSystem extends FlaxenSystem
 	 // Add puff of smoke
 	 public function doSmokeFx(size:Int, ent:Entity)
 	 {
-	 	var image = f.getComponent(ent, Image);
 	 	var pos = f.getComponent(ent, Position);
-	 	var offset = f.getComponent(ent, Offset);
 	 	var data = sizeToArea[size];
 		var emitter = new Emitter("art/smoke.png");
 		emitter.onComplete = DestroyEntity;
@@ -86,6 +96,37 @@ class CollisionSystem extends FlaxenSystem
 			.add(new Position(pos.x + data.x/2, pos.y - data.y / 4))
 			.add(f.getComponent("featureProxy", Velocity));
 	}
+
+	 // Add rubble flying
+	 public function doRubbleFlying(size:Int, mainPos:Position)
+	 {
+	 	var offset = Offset.center();
+		var data = sizeToArea[size];
+
+ 		for(i in 0...(size + 2) * 5)
+ 		{
+ 			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
+ 			var alpha = new Alpha(1.0);
+ 			var tween = new Tween (0.25, null, LoopType.Forward).to(rot, "angle", rot.angle + 360);
+ 			var pos = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
+ 			var e = f.newEntity("brick#")
+ 				.add(new Image("art/brick.png"))
+ 				.add(rubbleLayer)
+ 				.add(pos)
+ 				.add(rot)
+ 				.add(alpha)
+ 				.add(offset)
+ 				.add(rubbleGravity)
+ 				.add(tween)
+ 				.add(new Velocity(MathUtil.rnd(-120, 120), -100));
+
+ 			f.newActionQueue()
+ 				.wait(1.0)
+ 				.call(function() f.newTween(0.25).to(alpha, "value", 0.0) )
+ 				.wait(0.25)
+ 				.removeEntity(e);
+ 		}
+ 	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
 	//      I have to remove the Display component as well. Tsk, shouldn't be that way.
@@ -106,8 +147,11 @@ class CollisionSystem extends FlaxenSystem
 	 		// Show puff of smoke
 	 		doSmokeFx(feature.size, featureEnt);
 
+	 		// Add some rubble flying
+	 		// doRubbleFlying(feature.size, featureEnt.get(Position));
+
 	 		// Collision sound
-	 		var id = flaxen.util.MathUtil.rndInt(1,3);
+	 		var id = MathUtil.rndInt(1,3);
 	 		f.newSound('sound/destroy$id.wav');
 
 	 		// Collision shake
