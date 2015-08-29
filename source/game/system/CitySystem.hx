@@ -30,7 +30,7 @@ class CitySystem extends FlaxenSystem
 	public var spawnCount:Int = 0;
 	public var lastFeaturePos:Position;
 	public var lastFeature:Feature = null;
-	public var featureLayer:Layer = new Layer(30);
+	public var featureLayer:Layer = new Layer(20);
 	public var featureVelocity:Velocity = new Velocity(0,0);
 	public var monster:Monster;
 

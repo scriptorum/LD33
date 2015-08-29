@@ -73,7 +73,7 @@ class PlayHandler extends FlaxenHandler
 		f.newEntity("grass")
 			.add(new Image("art/grass.png"))
 			.add(new Repeating(true, false))
-			.add(new Layer(5))
+			.add(new Layer(0))
 			.add(Position.bottomLeft().subtract(0, 10));
 
 		f.newComponentSet("monsterIdleSet").addClass(Animation, ["63-80", 30, Forward]);

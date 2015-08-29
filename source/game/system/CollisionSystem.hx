@@ -6,7 +6,9 @@ import ash.core.System;
 import flaxen.component.Image;
 import flaxen.component.Layer;
 import flaxen.component.Offset;
+import flaxen.component.Emitter;
 import flaxen.component.Position;
+import flaxen.component.Rotation;
 import flaxen.component.Sound;
 import flaxen.component.Velocity;
 import flaxen.Flaxen;
@@ -19,6 +21,10 @@ import game.node.FeatureNode;
 
 class CollisionSystem extends FlaxenSystem
 {
+	private var sizeToArea:Array<{x:Float, y:Float}> = [{ x: 20,  y:31 }, { x: 32,  y:61 }, { x: 64,  y:95 }, { x: 96, y:122 }, { x:128, y:154 }, { x:160, y:186 }];
+	private var smokeLayer:Layer = new Layer(30);
+	private var rubbleLayer:Layer = new Layer(20);
+
 	public function new(f:Flaxen)
 	{ 
 		super(f);
@@ -56,28 +62,29 @@ class CollisionSystem extends FlaxenSystem
 		}
 	 }
 
-	 // TODO Add puff of smoke
-	 public function doSmokeFx()
+	 // Add puff of smoke
+	 public function doSmokeFx(size:Int, ent:Entity)
 	 {
-		// var emitter = new Emitter("art/particle-smoke.png");
-		// emitter.destroyEntity = true;
-		// emitter.maxParticles = Math.floor(radius * radius / 15);
-		// emitter.lifespan = 1.0;
-		// emitter.lifespanRand = 0.1;
-		// emitter.distance = radius * 1.5;
-		// emitter.rotationRand = new Rotation(360);
-		// emitter.stopAfterSeconds = 0.3;
-		// emitter.emitRadiusRand = radius / 10;
-		// emitter.alphaStart = 0.2;
+	 	var image = f.getComponent(ent, Image);
+	 	var pos = f.getComponent(ent, Position);
+	 	var offset = f.getComponent(ent, Offset);
+	 	var data = sizeToArea[size];
+		var emitter = new Emitter("art/smoke.png");
+		emitter.onComplete = DestroyEntity;
+		emitter.maxParticles = 15 + size * size * 20;
+		emitter.lifespan = 2.3;
+		emitter.lifespanRand = 0.1;
+		emitter.distance = data.y;
+		emitter.rotation = new Rotation(-90);
+		emitter.stopAfterSeconds = 0.4;
+		emitter.emitRectRand = { x:data.x, y:data.y / 2 };
+		emitter.colorEnd = 0xFFFFFF; // don't tint
 
-		// var e = flaxen.newEntity("emitter")
-		// 	.add(new Layer(10))
-		// 	.add(position.clone());
-
-		// // Delay emitter start
-		// e.add(new ActionQueue()
-		// 	.delay(0.25)
-		// 	.addComponent(e, emitter));
+		var e = f.newEntity("emitter#")
+			.add(emitter)
+			.add(smokeLayer)
+			.add(new Position(pos.x + data.x/2, pos.y - data.y / 4))
+			.add(f.getComponent("featureProxy", Velocity));
 	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
@@ -94,9 +101,10 @@ class CollisionSystem extends FlaxenSystem
 	 		feature.type = Rubble;
 			featureEnt.remove(flaxen.component.Display);
 	 		featureEnt.add(new Image('art/rubble${feature.size}.png'));
+	 		featureEnt.add(rubbleLayer);
 
 	 		// Show puff of smoke
-	 		doSmokeFx();
+	 		doSmokeFx(feature.size, featureEnt);
 
 	 		// Collision sound
 	 		var id = flaxen.util.MathUtil.rndInt(1,3);
