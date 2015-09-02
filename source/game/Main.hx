@@ -8,7 +8,7 @@ class Main extends Flaxen
 {
 	public static function main()
 	{
-		new Main(800, 258, 30, true);
+		new Main(800, 258, 60, true);
 	}
 
 	override public function ready()

@@ -1,8 +1,8 @@
 package game.system;
 
 import ash.core.Entity;
-import ash.core.Node;
-import ash.core.System;
+import flaxen.Flaxen;
+import flaxen.FlaxenSystem;
 import flaxen.common.LoopType;
 import flaxen.component.Alpha;
 import flaxen.component.Emitter;
@@ -12,18 +12,14 @@ import flaxen.component.Layer;
 import flaxen.component.Offset;
 import flaxen.component.Position;
 import flaxen.component.Rotation;
-import flaxen.component.Size;
+import flaxen.component.Scale;
 import flaxen.component.Sound;
 import flaxen.component.Tween;
 import flaxen.component.Velocity;
-import flaxen.Flaxen;
-import flaxen.FlaxenSystem;
 import flaxen.service.CameraService;
 import flaxen.util.MathUtil;
-import game.common.FeatureType;
 import game.component.Feature;
 import game.component.Monster;
-import game.node.FeatureNode;
 
 class CollisionSystem extends FlaxenSystem
 {
@@ -39,11 +35,6 @@ class CollisionSystem extends FlaxenSystem
 
 	override public function update(time:Float)
 	{
-		if(flaxen.service.InputService.check(com.haxepunk.utils.Key.F))
-		{
-			doRubbleFlying(5, new Position(650, 250));
-		}
-
 		var monsterEnt:Entity = f.getEntity("monster", false);
 		if(monsterEnt == null)
 			return; // no monster found; disable system
@@ -104,11 +95,11 @@ class CollisionSystem extends FlaxenSystem
 	 	var offset = Offset.center();
 		var data = sizeToArea[size];
 
- 		for(i in 0...(size + 2) * (size + 1))
+ 		for(i in 0...(size + 10) * 2)
  		{
  			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
  			var alpha = new Alpha(1.0);
- 			var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, LoopType.Forward).to(rot, "angle", rot.angle + 360);
+ 			var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, MathUtil.rndBool() ? LoopType.Forward: LoopType.Backward).to(rot, "angle", rot.angle + 360);
  			var pos = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
  			var e = f.newEntity("brick#")
  				.add(new Image("art/brick.png"))
@@ -118,11 +109,12 @@ class CollisionSystem extends FlaxenSystem
  				.add(alpha)
  				.add(offset)
  				.add(rubbleGravity)
+ 				.add(new Scale(MathUtil.rnd(0.5, 1.0 + (size/4))))
  				.add(tween)
  				.add(new Velocity(MathUtil.rnd(-120, 120), -200));
 
  			f.newActionQueue()
- 				.wait(1.0)
+ 				.wait(1.5)
  				.call(function() f.newTween(0.25).to(alpha, "value", 0.0) )
  				.wait(0.25)
  				.removeEntity(e);
