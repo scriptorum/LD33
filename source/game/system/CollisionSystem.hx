@@ -35,6 +35,11 @@ class CollisionSystem extends FlaxenSystem
 
 	override public function update(time:Float)
 	{
+		if(flaxen.service.InputService.released(com.haxepunk.utils.Key.F))
+		{
+			doRubbleFlying(5, new Position(650, 250));
+		}
+
 		var monsterEnt:Entity = f.getEntity("monster", false);
 		if(monsterEnt == null)
 			return; // no monster found; disable system
@@ -95,7 +100,9 @@ class CollisionSystem extends FlaxenSystem
 	 	var offset = Offset.center();
 		var data = sizeToArea[size];
 
- 		for(i in 0...(size + 10) * 2)
+var start = haxe.Timer.stamp();
+
+ 		for(i in 0...(size + 10) * 100)
  		{
  			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
  			var alpha = new Alpha(1.0);
@@ -118,7 +125,11 @@ class CollisionSystem extends FlaxenSystem
  				.call(function() f.newTween(0.25).to(alpha, "value", 0.0) )
  				.wait(0.25)
  				.removeEntity(e);
+
  		}
+var end = haxe.Timer.stamp();
+
+trace("Elapsed:" + (end - start));
  	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.

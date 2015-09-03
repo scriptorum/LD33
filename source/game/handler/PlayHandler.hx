@@ -238,7 +238,7 @@ class PlayHandler extends FlaxenHandler
 	private function updateScore()
 	{
 		var text = f.getComponent("score", Text);
-		var str:String = cast Math.floor(score * 100);
+		var str:String = "" + cast Math.floor(score * 100);
 		if(str.length == 2)
 			str = "0" + str;
 		else if (str.length == 1)
