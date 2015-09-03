@@ -100,9 +100,11 @@ class CollisionSystem extends FlaxenSystem
 	 	var offset = Offset.center();
 		var data = sizeToArea[size];
 
-var start = haxe.Timer.stamp();
+		// var start = haxe.Timer.stamp();
+		// var amount = (size + 10) * 100;
+		var amount = (size + 10) * 2;
 
- 		for(i in 0...(size + 10) * 100)
+ 		for(i in 0...amount)
  		{
  			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
  			var alpha = new Alpha(1.0);
@@ -127,9 +129,9 @@ var start = haxe.Timer.stamp();
  				.removeEntity(e);
 
  		}
-var end = haxe.Timer.stamp();
 
-trace("Elapsed:" + (end - start));
+		// var end = haxe.Timer.stamp();
+		// trace("Elapsed:" + (end - start));
  	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
