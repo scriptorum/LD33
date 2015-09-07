@@ -35,17 +35,17 @@ class CollisionSystem extends FlaxenSystem
 
 	override public function update(time:Float)
 	{
-		if(flaxen.service.InputService.released(com.haxepunk.utils.Key.F))
-		{
-			doRubbleFlying(5, new Position(650, 250));
-		}
+		// if(flaxen.service.InputService.released(com.haxepunk.utils.Key.F))
+		// {
+		// 	doRubbleFlying(5, new Position(650, 250));
+		// }
 
 		var monsterEnt:Entity = f.getEntity("monster", false);
 		if(monsterEnt == null)
 			return; // no monster found; disable system
 
-		var pos:Float = monsterEnt.get(Position).x + 12;
-		var monster:Monster = monsterEnt.get(Monster);
+		var pos:Float = f.getComponent(monsterEnt, Position).x + 12 + CameraService.getX();
+		var monster:Monster = f.getComponent(monsterEnt, Monster);
 
 		var nextFeatureEnt:Entity = f.getEntity(monster.nextFeatureId, false);
 		if(nextFeatureEnt == null)
@@ -67,13 +67,16 @@ class CollisionSystem extends FlaxenSystem
 
 	 		// Update "next feature" pointer for monster
 	 		monster.nextFeatureId = feature.nextId;
+	 		#if debug
+	 		if(feature.nextId == null)
+	 			trace("Feature.nextId is null!");
+	 		#end
 		}
 	 }
 
-	 // Add puff of smoke
-	 public function doSmokeFx(size:Int, ent:Entity)
+	 // Show puff of smoke
+	 public function doSmokeFx(size:Int, pos:Position)
 	 {
-	 	var pos = f.getComponent(ent, Position);
 	 	var data = sizeToArea[size];
 		var emitter = new Emitter("art/smoke.png");
 		emitter.onComplete = DestroyEntity;
@@ -81,20 +84,22 @@ class CollisionSystem extends FlaxenSystem
 		emitter.lifespan = 2.3;
 		emitter.lifespanRand = 0.1;
 		emitter.distance = data.y;
-		emitter.rotation = new Rotation(-90);
-		emitter.stopAfterSeconds = 0.4;
+		emitter.rotation = new Rotation(-90 + 45);
+		emitter.gravity = -5;
+		emitter.gravityRand = -5;
+		emitter.stopAfterSeconds = 0.6;
 		emitter.emitRectRand = { x:data.x, y:data.y / 2 };
-		emitter.colorEnd = 0xFFFFFF; // don't tint
+		emitter.colorStart = 0x666666;
+		emitter.colorEnd = 0xFFFFFF;
+		emitter.alphaStart = 0.5;
 
 		var e = f.newEntity("emitter#")
 			.add(emitter)
 			.add(smokeLayer)
-			.add(new Position(pos.x + data.x/2, pos.y - data.y / 4))
-			.add(f.getComponent("featureProxy", Velocity));
+			.add(new Position(pos.x + data.x/2, pos.y - data.y / 4));
 	}
 
-	 // Add rubble flying
-	 // TODO Change to emitter
+	 // Show rubble flying
 	 public function doRubbleFlying(size:Int, mainPos:Position)
 	 {
 	 	var offset = Offset.center();
@@ -102,14 +107,14 @@ class CollisionSystem extends FlaxenSystem
 
 		// var start = haxe.Timer.stamp();
 		// var amount = (size + 10) * 100;
-		var amount = (size + 10) * 2;
+		var amount = (size * 2 + 10);
 
  		for(i in 0...amount)
  		{
  			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
  			var alpha = new Alpha(1.0);
  			var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, MathUtil.rndBool() ? LoopType.Forward: LoopType.Backward).to(rot, "angle", rot.angle + 360);
- 			var pos = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
+ 			var pos:Position = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
  			var e = f.newEntity("brick#")
  				.add(new Image("art/brick.png"))
  				.add(rubbleLayer)
@@ -118,9 +123,9 @@ class CollisionSystem extends FlaxenSystem
  				.add(alpha)
  				.add(offset)
  				.add(rubbleGravity)
- 				.add(new Scale(MathUtil.rnd(0.5, 1.0 + (size/4))))
+ 				.add(new Scale(MathUtil.rnd(0.5, 1.0 + (size/2.5))))
  				.add(tween)
- 				.add(new Velocity(MathUtil.rnd(-120, 120), -200));
+ 				.add(new Velocity(MathUtil.rnd(-100, 400), -200));
 
  			f.newActionQueue()
  				.wait(1.5)
@@ -139,20 +144,25 @@ class CollisionSystem extends FlaxenSystem
 	// featureEnt.remove(flaxen.component.Display);
 	 public function resolveBuildingCollision(monster:Monster, feature:Feature, featureEnt:Entity)
 	 {
-	 	// Successful demolition
-	 	if(feature.size <= monster.speed)
+	 	var speed:Float = 0.0;
+	 	switch(monster.state)
 	 	{
-	 		// Replace building with rubble
-	 		feature.type = Rubble;
-			featureEnt.remove(flaxen.component.Display);
-	 		featureEnt.add(new Image('art/rubble${feature.size}.png'));
-	 		featureEnt.add(rubbleLayer);
+	 		case Running(s):
+	 		speed = s;
 
+	 		default:
+	 		return; // Cannot collide if not running!
+	 	}
+
+	 	// Successful demolition
+	 	if(feature.size <= speed)
+	 	{
 	 		// Show puff of smoke
-	 		doSmokeFx(feature.size, featureEnt);
+ 			var pos:Position = f.getComponent(featureEnt, Position);
+	 		doSmokeFx(feature.size, pos);
 
 	 		// Add some rubble flying
-	 		doRubbleFlying(feature.size, featureEnt.get(Position));
+	 		doRubbleFlying(feature.size, pos);
 
 	 		// Collision sound
 	 		var id = MathUtil.rndInt(1,3);
@@ -160,10 +170,17 @@ class CollisionSystem extends FlaxenSystem
 
 	 		// Collision shake
 	 		if(feature.size > 0)
- 				CameraService.shake(0.1 + feature.size / 15, 0.75 + feature.size / 5);
+ 				CameraService.shake(cast 1 + feature.size / 2, 0.25 + (feature.size / 30));
 
-	 		// Slow down monster
-	 		monster.nextSpeed = monster.speed - feature.size *.8;
+	 		// Replace building with rubble
+	 		featureEnt
+	 			.add(new Image('art/rubble${feature.size}.png'))
+	 			.add(rubbleLayer)
+	 			.remove(flaxen.component.Display);
+	 		feature.type = Rubble;
+
+	 		// Slow down monster from collision
+	 		monster.nextState = Running(Math.max(0, speed - (feature.size + 1) * 2));
 	 	}
 
 	 	// Unsuccessful demo
@@ -172,9 +189,7 @@ class CollisionSystem extends FlaxenSystem
 	 		playDeath("crack");
 
 		 	// Trigger knockback collision
-		 	monster.nextSpeed = -2;
-
-		 	// TODO Popup message and score
+		 	monster.nextState = Knockback;
 	 	}
 
 	 }
@@ -192,15 +207,23 @@ class CollisionSystem extends FlaxenSystem
 	 	if(f.hasMarker("godMode"))
 	 		return;
 
-	 	if(monster.speed <= 4)
+	 	var speed:Float = 0.0;
+	 	switch(monster.state)
+	 	{
+	 		case Running(s):
+	 		speed = s;
+
+	 		default:
+	 		return; // Cannot collide if not running!
+	 	}
+
+	 	if(speed <= 4)
 	 		return; // Safe to pass at slow speed
 
 	 	// Otherwise you die!
 	 	playDeath("ouch");
 
 	 	// Trigger monster pike anim
-	 	monster.nextSpeed = -3;
-
-	 	// TODO Popup message and score
+	 	monster.nextState = Piked;
 	 }
 }

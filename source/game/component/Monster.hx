@@ -6,8 +6,8 @@ import ash.core.Entity;
 class Monster
 {
 	public var nextFeatureId:String = null;
-	public var speed:Float = -4;
-	public var nextSpeed:Null<Float> = null;
+	public var state:MonsterState;
+	public var nextState:Null<MonsterState> = Idle;
 	public var set:String;
 	public var level:Int = 0;
 	public var deceleration:Float = 0;
@@ -15,4 +15,12 @@ class Monster
 	public function new()
 	{
 	}
+}
+
+enum MonsterState 
+{
+	Idle;
+	Knockback;
+	Piked;
+	Running(speed:Float);
 }

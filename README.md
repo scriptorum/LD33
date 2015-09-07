@@ -16,6 +16,7 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Added monster shading, highlights, and selout.
 - Added smoke demolition effect.
 - Improved building edging.
+- Added rubble effect
 
 ## Stuff that didn't make it into the compo version
 - Foot pounding
@@ -33,6 +34,7 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 ## To Do
 - Examine Threadbare preloader which just showed at 0% in practice
 - Do some barebones audio testing to figure out why the first sound played always comes at a delay
+- Award score based on SPEED, not just distance. Going faster earns more points!
 
 ## Build Notes
 - Export Spriter files with a custom rect of -80,-70,60,30 to make all the cells 141x101. I had a hard time working with this tool!

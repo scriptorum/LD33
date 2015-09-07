@@ -1,17 +1,15 @@
 package game.system;
 
 import ash.core.Entity;
-import ash.core.System;
+import flaxen.Flaxen;
+import flaxen.FlaxenSystem;
 import flaxen.component.Animation;
 import flaxen.component.Image;
 import flaxen.component.ImageGrid;
 import flaxen.component.Layer;
 import flaxen.component.Offset;
 import flaxen.component.Position;
-import flaxen.component.Tile;
-import flaxen.component.Velocity;
-import flaxen.Flaxen;
-import flaxen.FlaxenSystem;
+import flaxen.service.CameraService;
 import flaxen.util.MathUtil;
 import game.common.FeatureType;
 import game.component.Feature;
@@ -31,43 +29,51 @@ class CitySystem extends FlaxenSystem
 	public var lastFeaturePos:Position;
 	public var lastFeature:Feature = null;
 	public var featureLayer:Layer = new Layer(20);
-	public var featureVelocity:Velocity = new Velocity(0,0);
 	public var monster:Monster;
 
 	public function new(f:Flaxen)
 	{ 
 		super(f);
 
-		f.newEntity("featureProxy")
-			.add(featureVelocity);
-
-		spawnFeature(Empty, 25);
-
 		// Point monster toward some future feature to begin the collision-check-chain
 		var first = spawnFeature(Empty);
 		monster = f.getComponent("monster", Monster);
 		monster.nextFeatureId = first.name;
 		spawnFeatures();
-
-		// com.haxepunk.HXP.camera.x = -160;
 	}
 
 	override public function update(time:Float)
 	{
+		// Remove past features
 	 	for(node in ash.getNodeList(FeatureNode))
 	 	{
 	 		// Check for feature has fallen off map
-	 		if(node.position.x < -32 * 5)
+	 		if(CameraService.getX() > (node.position.x + 32 * node.feature.size))
 	 		{
+	 			// Point to next feature id if this is the monster's next feature
+	 			if(monster.nextFeatureId == node.entity.name)
+	 			{
+	 				#if debug
+		 			if(node.feature.nextId == null)
+		 			{
+			 			trace("Feature " + monster.nextFeatureId + " removed but next feature is null");
+						trace(flaxen.util.LogUtil.dumpEntities(f, 2));
+						trace("Camera:" + CameraService.getX());
+					}
+					#end
+		 			monster.nextFeatureId = node.feature.nextId;
+	 			}
 	 			f.removeEntity(node.entity); // Remove feature
-	 			spawnFeatures(); // Queue up new features
 	 		}
 	 	}
+
+	 	// Spawn new features
+	 	spawnFeatures();
 	}
 
 	public function spawnFeatures()
 	{
-		while(lastFeaturePos.x <= (30 + 15) * 32)
+		while(lastFeaturePos == null || lastFeaturePos.x <= (30 + 15) * 32 + CameraService.getX())
 		{
 			if(spawnCount >= 8)
 			{
@@ -125,14 +131,13 @@ class CitySystem extends FlaxenSystem
 
 	public function spawnFeature(type:FeatureType, size:Int = 1): Entity
 	{		
-		var spawnX:Float = 0;
+		var spawnX:Float = CameraService.getX() + 850 - 32;
 		if(lastFeaturePos != null)
 			spawnX = lastFeaturePos.x + lastFeature.size * 32;
 
 		var feature = new Feature(type, size);
 		var pos = new Position(spawnX, 250);
-		var e = f.newEntity('feature$type#')
-			.add(featureVelocity)
+		var e = f.newChildEntity("levelData", 'feature$type#')
 			.add(feature)
 			.add(new Offset(0, -1, true))
 			.add(pos);
@@ -161,8 +166,10 @@ class CitySystem extends FlaxenSystem
 			case Rubble:
 		}
 
+		// trace("Spawning feature name:" + feature.id + " type:" + feature.type + " size:" + feature.size + " offset:" + 
+		// 	(spawnX - CameraService.getX()) + " spawnX:" + spawnX + " cameraX:" + CameraService.getX());
+
 		// BUG FIX Two users reported going into a state after button mashing where they stopped colliding.
-		var monster = f.getComponent("monster", Monster);
 		if(monster != null && monster.nextFeatureId == null)
 			monster.nextFeatureId = e.name;
 
