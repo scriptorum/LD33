@@ -1,6 +1,7 @@
 package game.system;
 
 import ash.core.Entity;
+import flaxen.component.Display;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
 import flaxen.common.LoopType;
@@ -25,12 +26,16 @@ class CollisionSystem extends FlaxenSystem
 {
 	private var sizeToArea:Array<{x:Float, y:Float}> = [{ x: 20,  y:31 }, { x: 32,  y:61 }, { x: 64,  y:95 }, { x: 96, y:122 }, { x:128, y:154 }, { x:160, y:186 }];
 	private var smokeLayer:Layer = new Layer(30);
+
+	// private static var lastPoolSize:Int = 0;
+	private var rubblePool:Array<Entity>;
 	private var rubbleLayer:Layer = new Layer(20);
-	private var rubbleGravity:Gravity = new Gravity(0, 300);
+	private var rubbleComponents:Array<Dynamic> = [new Layer(20), new Image("art/brick.png"), Offset.center(), new Gravity(0, 300)];
 
 	public function new(f:Flaxen)
 	{ 
 		super(f);
+		rubblePool = new Array<Entity>();
 	}
 
 	override public function update(time:Float)
@@ -72,6 +77,12 @@ class CollisionSystem extends FlaxenSystem
 	 			trace("Feature.nextId is null!");
 	 		#end
 		}
+
+		// if(lastPoolSize != rubblePool.length)
+		// {
+		// 	lastPoolSize = rubblePool.length;
+		// 	trace("Pool Size:" + lastPoolSize);
+		// }
 	 }
 
 	 // Show puff of smoke
@@ -102,42 +113,64 @@ class CollisionSystem extends FlaxenSystem
 	 // Show rubble flying
 	 public function doRubbleFlying(size:Int, mainPos:Position)
 	 {
-	 	var offset = Offset.center();
-		var data = sizeToArea[size];
-
 		// var start = haxe.Timer.stamp();
 		// var amount = (size + 10) * 100;
 		var amount = (size * 2 + 10);
 
  		for(i in 0...amount)
- 		{
- 			var rot = new Rotation(MathUtil.rnd(0.0, 360.0));
- 			var alpha = new Alpha(1.0);
- 			var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, MathUtil.rndBool() ? LoopType.Forward: LoopType.Backward).to(rot, "angle", rot.angle + 360);
- 			var pos:Position = mainPos.clone().add(MathUtil.rnd(0, data.x), MathUtil.rnd(0, -data.y));
- 			var e = f.newEntity("brick#")
- 				.add(new Image("art/brick.png"))
- 				.add(rubbleLayer)
- 				.add(pos)
- 				.add(rot)
- 				.add(alpha)
- 				.add(offset)
- 				.add(rubbleGravity)
- 				.add(new Scale(MathUtil.rnd(0.5, 1.0 + (size/2.5))))
- 				.add(tween)
- 				.add(new Velocity(MathUtil.rnd(-100, 400), -200));
-
- 			f.newActionQueue()
- 				.wait(1.5)
- 				.call(function() f.newTween(0.25).to(alpha, "value", 0.0) )
- 				.wait(0.25)
- 				.removeEntity(e);
-
- 		}
+ 			loadRubble(size, mainPos);
 
 		// var end = haxe.Timer.stamp();
 		// trace("Elapsed:" + (end - start));
  	}
+
+ 	/**
+ 	 * Load one rubble from the pool or create it.
+ 	 */
+ 	public function loadRubble(size:Int, mainPos:Position)
+	{
+		var data = sizeToArea[size];
+
+		var e:Entity;
+		if(rubblePool.length > 0)
+			e = rubblePool.pop();
+		else
+		{
+			e = f.newEntity("brick#", false)
+				.add(new Rotation(0))
+				.add(new Alpha(1.0))
+				.add(Position.zero())
+				.add(Offset.center())
+				.add(Scale.full())
+				.add(Velocity.zero());
+			for(c in rubbleComponents)
+				e.add(c);
+		}
+
+		// Adjust values
+		var rot = e.get(Rotation);
+		rot.angle = MathUtil.rnd(0.0, 360.0);
+		var alpha = e.get(Alpha);
+		alpha.value = 1.0;
+		e.get(Position).set(mainPos.x + MathUtil.rnd(0, data.x), mainPos.y + MathUtil.rnd(0, -data.y));
+		e.get(Scale).set(MathUtil.rnd(0.5, 1.0 + (size/2.5)));
+		e.get(Velocity).set(MathUtil.rnd(-100, 400), -200);
+		var tween = new Tween (MathUtil.rnd(0.5, 1.0), null, MathUtil.rndBool() ? LoopType.Forward: LoopType.Backward)
+			.to(rot, "angle", rot.angle + 360);
+		e.add(tween);
+
+		// Add entity to Ash
+		f.addEntity(e);
+
+		// Give entity fade out and return to pool
+		f.newActionQueue()
+			.wait(1.5)
+			.call(function() f.newTween(0.25).to(alpha, "value", 0.0) )
+			.wait(0.25)
+			.removeEntity(e) // Remove entity from Ash
+			.removeComponent(e, Display) // Do not cache Display component
+			.call(function() rubblePool.push(e)); // Add entity to pool
+	}
 
 	// TODO Ugh, I seem to have a bug in Flaxen where an HP Entity is not removed when the Image component is removed.
 	//      I have to remove the Display component as well. Tsk, shouldn't be that way. Verify bug.
