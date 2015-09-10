@@ -229,9 +229,9 @@ class CollisionSystem extends FlaxenSystem
 
 	 public function playDeath(soundName:String)
 	 {
- 		var soundEnt = f.newSound('sound/$soundName.wav');
+ 		var sound = f.newSound('sound/$soundName.wav');
  		f.newActionQueue()
- 			.waitForComplete(soundEnt.get(Sound))
+ 			.waitForComplete(sound)
  			.call(function() { f.newMarker("deathSoundComplete"); });
 	 }
 

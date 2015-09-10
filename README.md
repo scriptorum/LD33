@@ -17,19 +17,18 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Added smoke demolition effect.
 - Improved building edging.
 - Added rubble effect
+- Disgusting monster speedup sound effects
 
 ## Stuff that didn't make it into the compo version
 - Foot pounding
-- Flap sound, flap puff dust, running sound
+- Flap puff dust
 - Tree parallax
 - Villagers escaping buildings/running from you
 - Sun lowers/Sunset as difficulty rise
 - Tutorial tips to explain the game as you run
 - Test variant pike rules (for a variation of max speeds)
 - Better indicators of whether you're going fast/slow enough to deal with obstacles
-- Additional input control (spacebar to start, click to flap)
 - Music? What music?
-- A moving lawn would be nice
 
 ## To Do
 - Examine Threadbare preloader which just showed at 0% in practice

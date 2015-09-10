@@ -214,8 +214,11 @@ class PlayHandler extends FlaxenHandler
 				case Running(speed):
 				if((InputService.clicked || key == Key.SPACE) && speed >= 0 && speed < MAX_SPEED) 
 				{
+					var newSpeed = speed + 2.5;
+					var vol = 0.25 + newSpeed / MAX_SPEED * 0.75;
+					f.newSound('sound/squish${MathUtil.rndInt(1,8)}.wav', false, vol);
 					monster.deceleration = 0;
-					updateMonsterState(Running(speed + 2.5));
+					updateMonsterState(Running(newSpeed));
 				}
 
 				slowMonster();
