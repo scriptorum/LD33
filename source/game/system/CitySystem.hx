@@ -11,6 +11,7 @@ import flaxen.component.Offset;
 import flaxen.component.Position;
 import flaxen.service.CameraService;
 import flaxen.util.MathUtil;
+import game.common.Config;
 import game.common.FeatureType;
 import game.component.Feature;
 import game.component.Monster;

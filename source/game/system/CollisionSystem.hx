@@ -1,6 +1,7 @@
 package game.system;
 
 import ash.core.Entity;
+import game.common.Config;
 import flaxen.component.Display;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
@@ -250,7 +251,7 @@ class CollisionSystem extends FlaxenSystem
 	 		return; // Cannot collide if not running!
 	 	}
 
-	 	if(speed <= 4)
+	 	if(speed <= Config.minPikeSpeed)
 	 		return; // Safe to pass at slow speed
 
 	 	// Otherwise you die!

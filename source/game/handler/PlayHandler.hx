@@ -2,13 +2,8 @@ package game.handler;
 
 import com.haxepunk.utils.Key;
 import flaxen.common.Completable;
-import flaxen.component.ScrollFactor;
-import flaxen.FlaxenHandler;
 import flaxen.common.Easing;
-import flaxen.common.Completable;
-import flaxen.common.OnCompleteAnimation;
 import flaxen.common.LoopType;
-import flaxen.common.Completable;
 import flaxen.common.OnCompleteAnimation;
 import flaxen.component.Animation;
 import flaxen.component.Image;
@@ -17,15 +12,19 @@ import flaxen.component.Layer;
 import flaxen.component.Offset;
 import flaxen.component.Position;
 import flaxen.component.Repeating;
+import flaxen.component.Scale;
+import flaxen.component.ScrollFactor;
 import flaxen.component.Size;
 import flaxen.component.Text;
 import flaxen.component.Tween;
+import flaxen.FlaxenHandler;
 import flaxen.service.CameraService;
 import flaxen.service.InputService;
 import flaxen.system.GravitySystem;
 import flaxen.system.MovementSystem;
 import flaxen.util.LogUtil;
 import flaxen.util.MathUtil;
+import game.common.Config;
 import game.component.Monster;
 import game.node.FeatureNode;
 import game.system.CitySystem;
@@ -37,6 +36,7 @@ class PlayHandler extends FlaxenHandler
 	public var monster:Monster = new Monster();
 	public var gameState:GameState = Ready;
 	public var score:Float = 0;
+	public var curSpeed:Float = 0;
 
 	override public function start()
 	{
@@ -105,14 +105,14 @@ class PlayHandler extends FlaxenHandler
 			.add(monster)
 			.add(new Layer(10));
 
-		var style = TextStyle.createTTF();
-		style.halign = Left;
+		var style = TextStyle.createBitmap(false, Center, Center, 0, -10, 0, "0", false, "0123456789.");
 		f.resolveEntity("score")
+			.add(new Image("art/scoreFont.png"))
 			.add(new Text("0"))
 			.add(style)
-			.add(new Size(50, 50))		
+			.add(new Scale(0.5, 0.5))
 			.add(ScrollFactor.lock)
-			.add(Position.topRight().add(-50, 10));
+			.add(Position.topRight().add(-50, 20));
 		score = 0;
 		updateScore();
 
@@ -224,7 +224,8 @@ class PlayHandler extends FlaxenHandler
 				slowMonster();
 				moveCamera((75 + (75 * ((speed + 3) / 5)) * 2.0) * com.haxepunk.HXP.elapsed);
 
-				score += (speed >=0  ? com.haxepunk.HXP.elapsed  * (speed + 1) : 0);
+				var pointsPerSecond:Float = (speed <= 0 ? 0 : speed * speed) + 1;
+				score += pointsPerSecond * com.haxepunk.HXP.elapsed;
 				updateScore();
 
 				default:
@@ -272,13 +273,17 @@ class PlayHandler extends FlaxenHandler
 
 	private function updateScore()
 	{
-		var text = f.getComponent("score", Text);
+		var scoreEnt = f.getEntity("score");
+		var text = f.getComponent(scoreEnt, Text);
 		var str:String = "" + cast Math.floor(score * 100);
 		if(str.length == 2)
 			str = "0" + str;
 		else if (str.length == 1)
 			str = "00" + str;
 		text.message = str.substr(0, str.length - 2) + "." + str.substr(-2, 2);
+
+		var scale = f.getComponent(scoreEnt, Scale);
+		scale.set(0.5 + Easing.cubicIn(curSpeed/MAX_SPEED) * 2.0);
 	}
 
 	private function updateMonsterState(newState:MonsterState)
@@ -312,6 +317,7 @@ class PlayHandler extends FlaxenHandler
 				else
 					monsterEnt.add(new Tween(0.25, Easing.quadOut, null, OnComplete.DestroyComponent).to(pos, "x", target));
 			}
+			curSpeed = speed;
 
 			var index = Math.max(0, Math.floor(speed));
 			if(index > 6)
@@ -334,6 +340,8 @@ class PlayHandler extends FlaxenHandler
 		// End game .. death!
 		if(gameOver)
 		{
+			curSpeed = 0;
+			updateScore();
 			changeState(Dead);
 			f.removeSystemByClass(CollisionSystem);
 			f.removeSystemByClass(CitySystem);

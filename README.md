@@ -18,6 +18,7 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Improved building edging.
 - Added rubble effect
 - Disgusting monster speedup sound effects
+- Score more points the faster you travel
 
 ## Stuff that didn't make it into the compo version
 - Foot pounding
