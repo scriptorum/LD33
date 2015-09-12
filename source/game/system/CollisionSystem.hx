@@ -25,7 +25,6 @@ import game.component.Monster;
 
 class CollisionSystem extends FlaxenSystem
 {
-	private var sizeToArea:Array<{x:Float, y:Float}> = [{ x: 20,  y:31 }, { x: 32,  y:61 }, { x: 64,  y:95 }, { x: 96, y:122 }, { x:128, y:154 }, { x:160, y:186 }];
 	private var smokeLayer:Layer = new Layer(30);
 
 	// private static var lastPoolSize:Int = 0;
@@ -89,7 +88,7 @@ class CollisionSystem extends FlaxenSystem
 	 // Show puff of smoke
 	 public function doSmokeFx(size:Int, pos:Position)
 	 {
-	 	var data = sizeToArea[size];
+	 	var data = Config.buildingSizeToArea[size];
 		var emitter = new Emitter("art/smoke.png");
 		emitter.onComplete = DestroyEntity;
 		emitter.maxParticles = 15 + size * size * 20;
@@ -130,7 +129,7 @@ class CollisionSystem extends FlaxenSystem
  	 */
  	public function loadRubble(size:Int, mainPos:Position)
 	{
-		var data = sizeToArea[size];
+		var data = Config.buildingSizeToArea[size];
 
 		var e:Entity;
 		if(rubblePool.length > 0)
@@ -189,8 +188,11 @@ class CollisionSystem extends FlaxenSystem
 	 	}
 
 	 	// Successful demolition
-	 	if(feature.size <= speed)
+	 	if(feature.getMinBuildingDemoSpeed() <= speed)
 	 	{
+
+			// trace("Building demo occurs! size:" + feature.size + " speed:" + speed + " min:" + feature.getMinBuildingDemoSpeed());
+
 	 		// Show puff of smoke
  			var pos:Position = f.getComponent(featureEnt, Position);
 	 		doSmokeFx(feature.size, pos);
@@ -251,7 +253,7 @@ class CollisionSystem extends FlaxenSystem
 	 		return; // Cannot collide if not running!
 	 	}
 
-	 	if(speed <= Config.minPikeSpeed)
+	 	if(speed <= Config.maxPikeSpeed)
 	 		return; // Safe to pass at slow speed
 
 	 	// Otherwise you die!

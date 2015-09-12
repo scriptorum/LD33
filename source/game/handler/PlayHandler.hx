@@ -26,7 +26,9 @@ import flaxen.util.LogUtil;
 import flaxen.util.MathUtil;
 import game.common.Config;
 import game.component.Monster;
+import game.component.Peasant;
 import game.node.FeatureNode;
+import game.system.PeasantSystem;
 import game.system.CitySystem;
 import game.system.CollisionSystem;
  
@@ -43,8 +45,9 @@ class PlayHandler extends FlaxenHandler
 		CameraService.init(f);
 		addEntities();	
 		updateMonsterState(Idle);
-		f.addSystem(new MovementSystem(f));
+		f.addSystem(new PeasantSystem(f));
 		f.addSystem(new GravitySystem(f));
+		f.addSystem(new MovementSystem(f));
 	}
 
 	public function addEntities()
@@ -93,6 +96,16 @@ class PlayHandler extends FlaxenHandler
 		f.newComponentSet("monsterSpeed7Set").addClass(Animation, ["57-62", 45, LoopType.Forward]);
 		f.newComponentSet("monsterPikedSet").addClass(Animation, ["12-22", 30, LoopType.None, OnCompleteAnimation.Last]);
 		f.newComponentSet("monsterKnockbackSet").addClass(Animation, ["0-11", 30, LoopType.None, OnCompleteAnimation.Last]);
+
+		var anim = new Animation("0-1", 10);
+		anim.random = true;
+		f.newComponentSet("peasant")
+			.add(new Image("art/peasant.png"))
+			.add(anim)
+			.add(Peasant.instance)
+			.add(new ImageGrid(7, 7))
+			.add(new Offset(0.5, -1, true))
+			.add(new Layer(15));
 
 		f.newEntity("levelData"); // Parent entity to group all feature items
 
@@ -275,12 +288,13 @@ class PlayHandler extends FlaxenHandler
 	{
 		var scoreEnt = f.getEntity("score");
 		var text = f.getComponent(scoreEnt, Text);
-		var str:String = "" + cast Math.floor(score * 100);
-		if(str.length == 2)
-			str = "0" + str;
-		else if (str.length == 1)
-			str = "00" + str;
-		text.message = str.substr(0, str.length - 2) + "." + str.substr(-2, 2);
+		// var str:String = "" + cast Math.floor(score * 100);
+		// if(str.length == 2)
+		// 	str = "0" + str;
+		// else if (str.length == 1)
+		// 	str = "00" + str;
+		// text.message = str.substr(0, str.length - 2) + "." + str.substr(-2, 2);
+		text.message = cast Math.floor(score * 100);
 
 		var scale = f.getComponent(scoreEnt, Scale);
 		scale.set(0.5 + Easing.cubicIn(curSpeed/MAX_SPEED) * 2.0);
@@ -355,6 +369,7 @@ class PlayHandler extends FlaxenHandler
 
 	override public function stop()
 	{
+		f.removeSystemByClass(PeasantSystem);
 		f.removeSystemByClass(MovementSystem);
 		f.removeSystemByClass(GravitySystem);
 		f.removeSystemByClass(CollisionSystem);

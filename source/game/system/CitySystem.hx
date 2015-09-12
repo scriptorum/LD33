@@ -29,7 +29,8 @@ class CitySystem extends FlaxenSystem
 	public var spawnCount:Int = 0;
 	public var lastFeaturePos:Position;
 	public var lastFeature:Feature = null;
-	public var featureLayer:Layer = new Layer(20);
+	public var buildingLayer:Layer = new Layer(20);
+	public var pikesLayer:Layer = new Layer(14);
 	public var monster:Monster;
 
 	public function new(f:Flaxen)
@@ -137,6 +138,7 @@ class CitySystem extends FlaxenSystem
 			spawnX = lastFeaturePos.x + lastFeature.size * 32;
 
 		var feature = new Feature(type, size);
+		feature.peasantPanic = Config.peasantPanicRate;
 		var pos = new Position(spawnX, 250);
 		var e = f.newChildEntity("levelData", 'feature$type#')
 			.add(feature)
@@ -155,13 +157,13 @@ class CitySystem extends FlaxenSystem
 			case Pikes:
 			var anim:Animation;
 			e.add(new Image("art/pikes.png"))
-				.add(featureLayer)
+				.add(pikesLayer)
 				.add(new ImageGrid(52, 26))
 				.add(anim = new Animation("0-2", 10));
 			anim.random = true;
 
 			case Building:
-			e.add(new Image('art/building$size.png')).add(featureLayer);
+			e.add(new Image('art/building$size.png')).add(buildingLayer);
 
 			case Empty:
 			case Rubble:
