@@ -293,7 +293,7 @@ class PlayHandler extends FlaxenHandler
 		// else if (str.length == 1)
 		// 	str = "00" + str;
 		// text.message = str.substr(0, str.length - 2) + "." + str.substr(-2, 2);
-		text.message = cast Math.floor(score * 100);
+		text.message = cast Math.floor(score);
 
 		var scale = f.getComponent(scoreEnt, Scale);
 		scale.set(0.5 + Easing.cubicIn(curSpeed/MAX_SPEED) * 2.0);
