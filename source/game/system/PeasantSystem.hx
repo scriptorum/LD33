@@ -35,6 +35,7 @@ class PeasantSystem extends FlaxenSystem
 	private function spawnPeasants(monster:Monster, time:Float)
 	{
 		var spawnLevel:Int = 0;
+		var monsterSpeed:Float = 0;
 
 		switch(monster.state)
 		{
@@ -53,38 +54,66 @@ class PeasantSystem extends FlaxenSystem
 				if(Config.minBuildingDemoSpeed[lev] <= speed)
 					spawnLevel = lev;
 			}
+			monsterSpeed = speed;
 		}
 
 	 	for(node in ash.getNodeList(FeatureNode))
 	 	{
-	 		if(node.feature.type != Building)
-	 			continue;
+	 		var panicking = node.feature.size <= spawnLevel;
+	 		if(node.feature.type == Building)
+	 			checkBuildingPanic(node.feature, node.position, node.entity, time, spawnLevel);
+	 		else if (node.feature.type == Pikes)
+				checkPikesPanic(node.feature, monsterSpeed, node.entity);
+		}
 
-	 		// Register rising level of panic	 	
-	 		node.feature.peasantPanic += time;
-
-	 		// However only peasants in building with impending demo flee the building
-	 		if(node.feature.size <= spawnLevel)
-	 		{
-	 			// Ignore offscreen features
-	 			if(node.position.x > (CameraService.getX() + 850))
-	 				continue;
-
-		 		if(node.feature.peasantPanic >= Config.peasantPanicRate)
-		 		{
-		 			// Restart timer for next flee
-		 			node.feature.peasantPanic = 0;
-
-		 			// Spawn a peasant at this feature
-		 			spawnPeasant(node.feature, node.position);
-		 		}
-	 		}
-
-	 		// A peasant-spawning building puts its lights on so you can tell you're going fast enough
-	 		var tile = f.getComponent(node.entity, Tile);
- 			tile.value = (node.feature.size <= spawnLevel ? 1 : 0);
-	 	}
 	}
+
+	private function checkPikesPanic(feature:Feature, speed:Float, entity:Entity)
+	{
+ 		// "Panic" in this case means the monster should panic!
+ 		var panicking:Bool = speed >= Config.maxPikeSpeed;
+
+ 		// The pikes should scintillate if you're going too fast and they're deadly
+ 		if(feature.panicking != panicking)
+ 		{
+ 			feature.panicking = panicking;
+	 		var anim = f.getComponent(entity, Animation);
+ 			anim.random = !panicking;
+ 			anim.setFrames(panicking ? "3,3-5,4" : "0-2");
+ 		}
+	}
+
+	private function checkBuildingPanic(feature:Feature, position:Position, entity:Entity, time:Float, spawnLevel:Int)
+	{
+ 		// Register rising level of panic	 	
+ 		feature.peasantPanic += time;
+
+ 		// However only peasants in building with impending demo flee the building
+ 		var panicking = feature.size <= spawnLevel;
+ 		if(panicking)
+ 		{
+ 			// Ignore offscreen features
+ 			if(position.x > (CameraService.getX() + 850))
+ 				return;
+
+	 		if(feature.peasantPanic >= Config.peasantPanicRate)
+	 		{
+	 			// Restart timer for next flee
+	 			feature.peasantPanic = 0;
+
+	 			// Spawn a peasant at this feature
+	 			spawnPeasant(feature, position);
+	 		}
+ 		}
+
+ 		// A peasant-spawning building puts its lights on so you can tell you're going fast enough
+ 		if(feature.panicking != panicking)
+ 		{
+ 			feature.panicking = panicking;
+	 		var tile = f.getComponent(entity, Tile);
+ 			tile.value = (panicking ? 1 : 0);	 			
+ 		}
+	 }
 
 	private function spawnPeasant(feature:Feature, position:Position)
 	{

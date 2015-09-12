@@ -11,6 +11,7 @@ class Feature
 	public var id:String;
 	public var nextId:String = null;
 	public var peasantPanic:Float = 0;
+	public var panicking:Bool = false;
 
 	public function new(type:FeatureType, size:Int)
 	{

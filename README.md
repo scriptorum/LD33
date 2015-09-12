@@ -20,9 +20,10 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Disgusting monster speedup sound effects
 - Score more points the faster you travel
 - When you're going fast enough to destroy a building, its doorways light up and peasants flee it
+- Game went from too hard to too easy; buildings now require a bit more speed to destroy
+- "Sparkle" on the tips of the pikes to indicate you're going to fast!
 
 ## Stuff that didn't make it into the compo version
-- Pikes are raised slightly to indicate you're going too fast to walk through them
 - Foot pounding
 - Flap puff dust
 - Tree parallax
