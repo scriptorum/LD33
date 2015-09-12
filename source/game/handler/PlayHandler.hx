@@ -98,10 +98,9 @@ class PlayHandler extends FlaxenHandler
 		f.newComponentSet("monsterKnockbackSet").addClass(Animation, ["0-11", 30, LoopType.None, OnCompleteAnimation.Last]);
 
 		var anim = new Animation("0-1", 10);
-		anim.random = true;
 		f.newComponentSet("peasant")
 			.add(new Image("art/peasant.png"))
-			.add(anim)
+			.addClass(Animation, ["0-1"])
 			.add(Peasant.instance)
 			.add(new ImageGrid(7, 7))
 			.add(new Offset(0.5, -1, true))

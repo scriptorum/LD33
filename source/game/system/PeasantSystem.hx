@@ -2,7 +2,9 @@ package game.system;
 
 import ash.core.Node;
 import ash.core.Entity;
-import flaxen.component.Display;
+import flaxen.component.Alpha;
+import flaxen.component.Animation;
+import flaxen.component.Tween;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
 import flaxen.component.Position;
@@ -81,11 +83,12 @@ class PeasantSystem extends FlaxenSystem
 
 	private function spawnPeasant(feature:Feature, position:Position)
 	{
-		var x:Float = Config.buildingSizeToArea[feature.size].x / 2;
+		var x:Float = MathUtil.rndInt(10, Config.buildingSizeToArea[feature.size].x - 10);
 		var e = f.newChildEntity("levelData", "peasant#");
 		f.addSet(e, "peasant")
 			.add(position.clone().add(x, 0))
 			.add(new Velocity(MathUtil.rnd(15, 30), 0));
+		e.get(Animation).random = true;
 	}
 
 	private function cullPeasants(monsterPos:Position)
@@ -93,7 +96,17 @@ class PeasantSystem extends FlaxenSystem
 		for(node in ash.getNodeList(PeasantNode))
 		{
 			if(node.position.x < CameraService.getX() + monsterPos.x + 12)
-				node.display.destroyEntity = true;
+			{
+				f.getComponent(node.entity, Animation).setFrames("2");
+				node.entity.remove(Peasant);
+				var alpha = new Alpha(1);
+				node.entity.add(alpha);
+				var tween = new Tween(4).to(alpha, "value", 0);
+				node.entity.add(tween);
+				f.newActionQueue(true, "bloodFade#")
+					.waitForComplete(tween)
+					.removeEntity(node.entity);
+			}
 		}
 	}
 }
@@ -102,5 +115,4 @@ private class PeasantNode extends Node<PeasantNode>
 {
 	public var peasant:Peasant;
 	public var position:Position;
-	public var display:Display;
 }
