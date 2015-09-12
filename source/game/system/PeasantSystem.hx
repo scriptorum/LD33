@@ -4,6 +4,7 @@ import ash.core.Node;
 import ash.core.Entity;
 import flaxen.component.Alpha;
 import flaxen.component.Animation;
+import flaxen.component.Tile;
 import flaxen.component.Tween;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
@@ -78,6 +79,10 @@ class PeasantSystem extends FlaxenSystem
 		 			spawnPeasant(node.feature, node.position);
 		 		}
 	 		}
+
+	 		// A peasant-spawning building puts its lights on so you can tell you're going fast enough
+	 		var tile = f.getComponent(node.entity, Tile);
+ 			tile.value = (node.feature.size <= spawnLevel ? 1 : 0);
 	 	}
 	}
 

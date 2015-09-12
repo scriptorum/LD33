@@ -1,6 +1,7 @@
 package game.system;
 
 import ash.core.Entity;
+import flaxen.component.Tile;
 import flaxen.Flaxen;
 import flaxen.FlaxenSystem;
 import flaxen.component.Animation;
@@ -163,7 +164,10 @@ class CitySystem extends FlaxenSystem
 			anim.random = true;
 
 			case Building:
-			e.add(new Image('art/building$size.png')).add(buildingLayer);
+			var data = Config.buildingSizeToArea[size];
+			e.add(new Image('art/building$size.png')).add(buildingLayer)
+				.add(new ImageGrid(data.x, data.y))
+				.add(new Tile(0));	
 
 			case Empty:
 			case Rubble:

@@ -19,7 +19,7 @@ For the compo version submitted to LD33, go to the [LD33/compo branch](https://g
 - Added rubble effect
 - Disgusting monster speedup sound effects
 - Score more points the faster you travel
-- Added peasants who flee buildings when you're going fast enough to demolish them
+- When you're going fast enough to destroy a building, its doorways light up and peasants flee it
 
 ## Stuff that didn't make it into the compo version
 - Pikes are raised slightly to indicate you're going too fast to walk through them
